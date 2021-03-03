@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1267
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceMod", "SourceMod\SourceMod.csproj", "{4F788300-9E9F-4ADD-B357-5C6B14B3D4CA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4F788300-9E9F-4ADD-B357-5C6B14B3D4CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F788300-9E9F-4ADD-B357-5C6B14B3D4CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F788300-9E9F-4ADD-B357-5C6B14B3D4CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F788300-9E9F-4ADD-B357-5C6B14B3D4CA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {02D936E8-3F27-4CBA-B119-A0510A7DF9A7}
+	EndGlobalSection
+EndGlobal

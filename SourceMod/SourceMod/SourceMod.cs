@@ -19,12 +19,12 @@ namespace Tutorial
 
         public string Name
         {
-            get { return "My test mod222"; }
+            get { return "AgentInteractionMod"; }
         }
 
         public string Description
         {
-            get { return "hopefully this works"; }
+            get { return "hopefully this works :p. Also trying github pulling"; }
         }
     }
     

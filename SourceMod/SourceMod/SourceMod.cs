@@ -152,10 +152,10 @@ namespace Tutorial
                 long before = Singleton<EconomyManager>.instance.InternalCashAmount;
                 String o = ("money before: " + before);
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
-                //CreateBuilding(out var building2, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc1, angle, length);
+                //CreateBuilding(out var building2, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc4, angle, length);
                 //CreateBuilding(out var building3, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc4, angle, length);
                 //CreateBuilding(out var building4, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc5, angle, length);
-                GetWaterSources();
+                //GetWaterSources();
 
                 Vector3 v = new Vector3(0, 0, 8);
                 Vector3 v2 = new Vector3(1, 0, 24);
@@ -175,11 +175,12 @@ namespace Tutorial
                 //Singleton<NetManager>.instance.m_segments.m_buffer[m_closeSegGetClosestZoneBlock(v, ref distsq, ref block);
                 int a = Singleton<NetManager>.instance.m_segments.m_buffer.Length;
                 //Singleton<NetManager>.instance.GetClosestSegments(v, m_closeSegments, out m_closeSegmentCount);
-                o = ("segment count: " + a);
-                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                //o = ("segment count: " + a);
+                //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
 
                 int newzones = ZoneArea(v, ItemClass.Zone.CommercialLow, 10);
                 newzones = ZoneArea(v9, ItemClass.Zone.CommercialLow, 30);
+                newzones = ZoneArea(v, ItemClass.Zone.ResidentialLow, 20);
 
                 o = ("painted zones: " + newzones);
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
@@ -239,6 +240,22 @@ namespace Tutorial
             o = ("errors:" + toolErrors.ToString());
             DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
 
+            Vector3 pos5;
+            Vector3 dir;
+            bool outbool = BuildingTool.SnapToPath(position, out pos5, out dir, 200f, roadOnly: true);
+            if (!outbool)
+            {
+                o = ("it returned false");
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+            }
+            if (outbool)
+            {
+                o = ("pos5:" + pos5 + "dir: " + dir);
+                angle = Mathf.Atan2(0f - dir.x, dir.z);
+                Vector3 position2 = pos5 - dir * ((float)info.m_cellLength * 4f);
+                position = position2;
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+            }
             if (toolErrors == ToolBase.ToolErrors.None)
             {
                 uint buildIndex = Singleton<SimulationManager>.instance.m_currentBuildIndex;
@@ -246,6 +263,8 @@ namespace Tutorial
                 BuildingManager buildingManager = Singleton<BuildingManager>.instance;
                 buildingManager.CreateBuilding(out var building2, ref Singleton<SimulationManager>.instance.m_randomizer, info, position, angle, length, buildIndex);
                 building = building2;
+                o = ("building building");
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
                 return true;
             }
             building = 0;
@@ -349,20 +368,20 @@ namespace Tutorial
             while ((flag1 = ApplyClosest(inposition, m_zone, brushsize, out startZone)) == false && brushsize <= maxBrushSize)
             {
                 brushsize *= 2;
-                String o = ("brushsize: " + brushsize);
-                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                //String o = ("brushsize: " + brushsize);
+                //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
             }
             if (flag1 == false)
             {
-                String o = ("returning on flag1 check");
-                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                //String o = ("returning on flag1 check");
+                //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
                 return 0;
             }
 
             if (startZone.magnitude == 0)
             {
-                String o = ("returning on magnitude check");
-                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                //String o = ("returning on magnitude check");
+                //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
                 return 0;
             }
             zones += 1;
@@ -375,14 +394,14 @@ namespace Tutorial
                 while ((flag2 = ApplyClosest(inposition, m_zone, brushsize, out pos)) == false && brushsize <= maxBrushSize)
                 {
                     brushsize *= 2;
-                    String o = ("brushsize: " + brushsize);
-                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                    //String o = ("brushsize: " + brushsize);
+                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
                 }
                 if (flag2 == true) zones += 1;
                 else
                 {
-                    String o = ("returning on flag2 check");
-                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                    //String o = ("returning on flag2 check");
+                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
                     return zones;
                 }
             }
@@ -407,8 +426,8 @@ namespace Tutorial
             int num8 = Mathf.Min((int)((num4 + 46f) / 64f + 75f), 149);
             int num9 = Mathf.Min((int)((num5 + 46f) / 64f + 75f), 149);
 
-            String o = ("1: " + num + " 2: " + num2 + " 3: " + num3 + " 4: " + num4 + " 5: " + num5 + " 6: " + num6 + " 7: " + num7 + " 8: " + num8 + " 9: " + num9);
-            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+            //String o = ("1: " + num + " 2: " + num2 + " 3: " + num3 + " 4: " + num4 + " 5: " + num5 + " 6: " + num6 + " 7: " + num7 + " 8: " + num8 + " 9: " + num9);
+            //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
 
             bool flag1 = false;
             ushort num10min = 0;
@@ -425,8 +444,8 @@ namespace Tutorial
                     int num11 = 0;
                     while (num10 != 0)
                     {
-                        o = ("num10" + num10 + "i = " + i + ", j = " + j + ", pos: " + instance.m_blocks.m_buffer[num10].m_position.x + ", " + instance.m_blocks.m_buffer[num10].m_position.z);
-                        DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                        //o = ("num10" + num10 + "i = " + i + ", j = " + j + ", pos: " + instance.m_blocks.m_buffer[num10].m_position.x + ", " + instance.m_blocks.m_buffer[num10].m_position.z);
+                        //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
                         Vector3 position = instance.m_blocks.m_buffer[num10].m_position;
                         float num12 = Mathf.Max(Mathf.Max(num2 - 46f - position.x, num3 - 46f - position.z), Mathf.Max(position.x - num4 - 46f, position.z - num5 - 46f));
                         if (num12 < 0f)
@@ -464,8 +483,8 @@ namespace Tutorial
             }
             if (flag1 == true)
             {
-                o = ("num10min" + num10min);
-                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                //o = ("num10min" + num10min);
+                //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
                 float b = 7f;
                 ApplyBrushClose(num10min, ref instance.m_blocks.m_buffer[num10min], instance.m_blocks.m_buffer[num10min].m_position, b, true, m_zone, mini, minj);
 
@@ -624,8 +643,8 @@ namespace Tutorial
             int num8 = Mathf.Min((int)((num4 + 46f) / 64f + 75f), 149);
             int num9 = Mathf.Min((int)((num5 + 46f) / 64f + 75f), 149);
 
-            String o = ("1: " + num + " 2: " + num2 + " 3: " + num3 + " 4: " + num4 + " 5: " + num5 + " 6: " + num6 + " 7: " + num7 + " 8: " + num8 + " 9: " + num9);
-            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+            //String o = ("1: " + num + " 2: " + num2 + " 3: " + num3 + " 4: " + num4 + " 5: " + num5 + " 6: " + num6 + " 7: " + num7 + " 8: " + num8 + " 9: " + num9);
+            //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
 
             for (int i = num7; i <= num9; i++)
             {

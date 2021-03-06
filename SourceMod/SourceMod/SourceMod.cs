@@ -19,15 +19,15 @@ namespace Tutorial
 
         public string Name
         {
-            get { return "AgentInteractionMod"; }
+            get { return "Cities: Skylines AI"; }
         }
 
         public string Description
         {
-            get { return "hopefully this works :p. Also trying github pulling"; }
+            get { return "hopefully this works againnnnnnnnnnnn"; }
         }
     }
-    
+
 
     public class CustomLoader : LoadingExtensionBase
     {
@@ -59,7 +59,7 @@ namespace Tutorial
             //int a = 0;
             //int pop = (int)Singleton<DistrictManager>.instance.m_districts.m_buffer[a].m_populationData.m_finalCount;
 
-            
+
         }
     }
 
@@ -178,61 +178,20 @@ namespace Tutorial
                 o = ("segment count: " + a);
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
 
-                ApplyClosest(v, ItemClass.Zone.CommercialLow);
-                ApplyClosest(v, ItemClass.Zone.CommercialLow);
+                int newzones = ZoneArea(v, ItemClass.Zone.CommercialLow, 10);
+                newzones = ZoneArea(v9, ItemClass.Zone.CommercialLow, 30);
 
-                ApplyClosest(v, ItemClass.Zone.CommercialLow);
-
-                ApplyClosest(v, ItemClass.Zone.CommercialLow);
-
-                ApplyClosest(v, ItemClass.Zone.CommercialLow);
-
-                ApplyClosest(v, ItemClass.Zone.CommercialLow);
-
-
-                ApplyClosest(v9, ItemClass.Zone.CommercialLow);
-                ApplyClosest(v9, ItemClass.Zone.CommercialLow);
-                ApplyClosest(v9, ItemClass.Zone.CommercialLow);
-                ApplyClosest(v9, ItemClass.Zone.CommercialLow);
-
-
-
-                //ApplyClosest(v, ItemClass.Zone.CommercialLow);
-                //ApplyClosest(v3, ItemClass.Zone.CommercialLow);
-
-                //ApplyBrush(v, ItemClass.Zone.CommercialLow);
-                //ApplyBrush(v2, ItemClass.Zone.CommercialLow);
-                //ApplyBrush(v3, ItemClass.Zone.CommercialLow);
-                //ApplyBrush(v4, ItemClass.Zone.CommercialLow);
-                //ApplyBrush(v5, ItemClass.Zone.CommercialLow);
-                //ApplyBrush(v6, ItemClass.Zone.CommercialLow);
-                //ApplyBrush(v7, ItemClass.Zone.CommercialLow);
-                //ApplyBrush(v8, ItemClass.Zone.CommercialLow);
-                //ApplyBrush(v9, ItemClass.Zone.CommercialLow);
-
-                int arlen = Singleton<ZoneManager>.instance.m_blocks.m_buffer.Length;
-                o = ("length blockbuffer: " + arlen);
-                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
-
-                int czones = 0;
-                for(int i = 0; i < arlen; i++)
-                {
-                    if((ItemClass.Zone)Singleton<ZoneManager>.instance.m_blocks.m_buffer[i].m_zone1 == ItemClass.Zone.CommercialLow)
-                    {
-                        czones++;
-                    }
-                }
-                o = ("commercial zones: " + czones);
+                o = ("painted zones: " + newzones);
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
 
                 //RoadAI rai = Singleton<RoadAI>.instance;
 
             }
-            if(i % 100 == 0)
+            if (i % 100 == 0)
             {
                 //MouseTools.OutputMousePos();
             }
- 
+
             i++;
         }
         public bool CreateBuilding(out ushort building, ref Randomizer randomizer, uint prefabID, Vector3 position, float angle, int length)
@@ -252,7 +211,7 @@ namespace Tutorial
                 o = ("not enough money");
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
                 building = 0;
-                return false ;
+                return false;
             }
 
 
@@ -355,7 +314,7 @@ namespace Tutorial
         {
             FastList<WaterSource> watersources = Singleton<TerrainManager>.instance.WaterSimulation.m_waterSources;
             int it = 0;
-            foreach(WaterSource i in watersources)
+            foreach (WaterSource i in watersources)
             {
 
                 /*
@@ -367,7 +326,7 @@ namespace Tutorial
                  * */
                 //if(i.m_type == WaterSource.TYPE_FACILITY)
                 {
-                    String o = ("watersource " + it  + " at inpos: " + i.m_inputPosition + " and outpos: " + i.m_outputPosition + " with inrate/outrate/flow: " + i.m_inputRate + "/" + i.m_outputRate + "/" + i.m_flow + "and target: " + i.m_target);
+                    String o = ("watersource " + it + " at inpos: " + i.m_inputPosition + " and outpos: " + i.m_outputPosition + " with inrate/outrate/flow: " + i.m_inputRate + "/" + i.m_outputRate + "/" + i.m_flow + "and target: " + i.m_target);
                     DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
                 }
 
@@ -378,9 +337,63 @@ namespace Tutorial
             }
         }
 
-        private void ApplyClosest(Vector3 inposition, ItemClass.Zone m_zone)
+        private int ZoneArea(Vector3 inposition, ItemClass.Zone m_zone, int quantity)
         {
-            float num = m_brushSize * 0.5f;
+            if (quantity < 1) return 0;
+
+            int zones = 0;
+            float brushsize = 50f;
+            float maxBrushSize = 5000f;
+            Vector3 startZone;
+            bool flag1 = false;
+            while ((flag1 = ApplyClosest(inposition, m_zone, brushsize, out startZone)) == false && brushsize <= maxBrushSize)
+            {
+                brushsize *= 2;
+                String o = ("brushsize: " + brushsize);
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+            }
+            if (flag1 == false)
+            {
+                String o = ("returning on flag1 check");
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                return 0;
+            }
+
+            if (startZone.magnitude == 0)
+            {
+                String o = ("returning on magnitude check");
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                return 0;
+            }
+            zones += 1;
+            brushsize = 50f;
+            for (int i = 1; i < quantity; i++)
+            {
+                bool flag2 = false;
+                Vector3 pos;
+
+                while ((flag2 = ApplyClosest(inposition, m_zone, brushsize, out pos)) == false && brushsize <= maxBrushSize)
+                {
+                    brushsize *= 2;
+                    String o = ("brushsize: " + brushsize);
+                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                }
+                if (flag2 == true) zones += 1;
+                else
+                {
+                    String o = ("returning on flag2 check");
+                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                    return zones;
+                }
+            }
+
+            return zones;
+
+        }
+
+        private bool ApplyClosest(Vector3 inposition, ItemClass.Zone m_zone, float brushsize, out Vector3 appliedPos)
+        {
+            float num = brushsize * 0.5f;
             Vector3 mousePosition = inposition;
             float num2 = mousePosition.x - num;
             float num3 = mousePosition.z - num;
@@ -402,16 +415,17 @@ namespace Tutorial
             float distmin = 10000000;
             int mini = 0;
             int minj = 0;
+            Vector3 minpos = new Vector3(0, 0, 0);
             for (int i = num7; i <= num9; i++)
             {
                 for (int j = num6; j <= num8; j++)
                 {
                     ushort num10 = instance.m_zoneGrid[i * 150 + j];
-                    
+
                     int num11 = 0;
                     while (num10 != 0)
                     {
-                        o = ("num10" + num10 + "i = " + i + ", j = " + j + ", pos: " +instance.m_blocks.m_buffer[num10].m_position.x + ", " + instance.m_blocks.m_buffer[num10].m_position.z);
+                        o = ("num10" + num10 + "i = " + i + ", j = " + j + ", pos: " + instance.m_blocks.m_buffer[num10].m_position.x + ", " + instance.m_blocks.m_buffer[num10].m_position.z);
                         DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
                         Vector3 position = instance.m_blocks.m_buffer[num10].m_position;
                         float num12 = Mathf.Max(Mathf.Max(num2 - 46f - position.x, num3 - 46f - position.z), Mathf.Max(position.x - num4 - 46f, position.z - num5 - 46f));
@@ -419,18 +433,20 @@ namespace Tutorial
                         {
                             int icheck;
                             int jcheck;
-                            float a = CheckBlock(num10, ref instance.m_blocks.m_buffer[num10], mousePosition, num, true, m_zone, out icheck, out jcheck);
+                            Vector3 minposcheck;
+                            float a = CheckBlock(num10, ref instance.m_blocks.m_buffer[num10], mousePosition, num, true, m_zone, out icheck, out jcheck, out minposcheck);
                             //o = ("a = " + a + ", min = " + distmin);
                             //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
                             if (a < distmin)
                             {
                                 //o = ("1 = " + instance.m_blocks.m_buffer[num10].m_zone1 + " 2 = " + instance.m_blocks.m_buffer[num10].m_zone2);
                                 //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
-                                
+
                                 flag1 = true;
                                 num10min = num10;
                                 mini = icheck;
                                 minj = jcheck;
+                                minpos = minposcheck;
                                 distmin = a;
                             }
                         }
@@ -446,14 +462,16 @@ namespace Tutorial
                     }
                 }
             }
-            if(flag1 == true)
+            if (flag1 == true)
             {
                 o = ("num10min" + num10min);
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
-                float brushsize = 7f;
-                ApplyBrushClose(num10min, ref instance.m_blocks.m_buffer[num10min], instance.m_blocks.m_buffer[num10min].m_position, brushsize, true, m_zone, mini, minj);
+                float b = 7f;
+                ApplyBrushClose(num10min, ref instance.m_blocks.m_buffer[num10min], instance.m_blocks.m_buffer[num10min].m_position, b, true, m_zone, mini, minj);
 
             }
+            appliedPos = minpos;
+            return flag1;
 
         }
 
@@ -466,7 +484,7 @@ namespace Tutorial
             bool m_dezoning = !zoning;
 
             bool flag = false;
-            
+
             if (m_zoning)
             {
                 if ((m_zone == ItemClass.Zone.Unzoned || data.GetZone(j, i) == ItemClass.Zone.Unzoned) && data.SetZone(j, i, m_zone))
@@ -489,11 +507,12 @@ namespace Tutorial
                     UsedZone(m_zone);
                 }
             }
+
         }
 
 
 
-        private float CheckBlock(ushort blockIndex, ref ZoneBlock data, Vector3 position, float brushRadius, bool zoning, ItemClass.Zone m_zone, out int iout, out int jout)
+        private float CheckBlock(ushort blockIndex, ref ZoneBlock data, Vector3 position, float brushRadius, bool zoning, ItemClass.Zone m_zone, out int iout, out int jout, out Vector3 minpos)
         {
             bool m_zoning = zoning;
             bool m_dezoning = !zoning;
@@ -503,6 +522,7 @@ namespace Tutorial
             {
                 iout = 0;
                 jout = 0;
+                minpos = new Vector3(0, 0, 0);
                 return 100000000;
             }
             int num = (int)((data.m_flags & 0xFF00) >> 8);
@@ -512,6 +532,7 @@ namespace Tutorial
             float minnum2 = 100000000;
             int mini = 0;
             int minj = 0;
+            Vector3 minv = new Vector3(0, 0, 0);
 
             for (int i = 0; i < num; i++)
             {
@@ -530,11 +551,12 @@ namespace Tutorial
                         //if ((m_zone == ItemClass.Zone.Unzoned || data.GetZone(j, i) == ItemClass.Zone.Unzoned) && CheckBlock(j,i,m_zone,data))
                         if ((m_zone == ItemClass.Zone.Unzoned || data.GetZone(j, i) == ItemClass.Zone.Unzoned) && CheckBlock(j, i, m_zone, data))
                         {
-                            if(num2 < minnum2)
+                            if (num2 < minnum2)
                             {
                                 mini = i;
                                 minj = j;
                                 minnum2 = num2;
+                                minv = vector + position;
                             }
                             flag = true;
                         }
@@ -545,14 +567,16 @@ namespace Tutorial
                     }
                 }
             }
-            if(flag == true)
+            if (flag == true)
             {
                 iout = mini;
                 jout = minj;
+                minpos = minv;
                 return minnum2;
             }
             iout = 0;
             jout = 0;
+            minpos = new Vector3(0, 0, 0);
             return 100000000;
         }
 
@@ -707,5 +731,5 @@ namespace Tutorial
             }
         }
     }
-    
+
 }

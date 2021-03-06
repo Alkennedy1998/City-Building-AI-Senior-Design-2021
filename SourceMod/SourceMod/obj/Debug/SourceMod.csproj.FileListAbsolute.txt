@@ -1,0 +1,10 @@
+C:\Users\jackc\OneDrive\Documents\GitHub\City-Building-AI-Senior-Design-2021\SourceMod\SourceMod\obj\Debug\SourceMod.csprojAssemblyReference.cache
+C:\Users\jackc\OneDrive\Documents\GitHub\City-Building-AI-Senior-Design-2021\SourceMod\SourceMod\obj\Debug\SourceMod.csproj.CoreCompileInputs.cache
+C:\Users\jackc\OneDrive\Documents\GitHub\City-Building-AI-Senior-Design-2021\SourceMod\SourceMod\bin\Debug\SourceMod.dll
+C:\Users\jackc\OneDrive\Documents\GitHub\City-Building-AI-Senior-Design-2021\SourceMod\SourceMod\bin\Debug\SourceMod.pdb
+C:\Users\jackc\OneDrive\Documents\GitHub\City-Building-AI-Senior-Design-2021\SourceMod\SourceMod\bin\Debug\PopsApiWrapper.dll
+C:\Users\jackc\OneDrive\Documents\GitHub\City-Building-AI-Senior-Design-2021\SourceMod\SourceMod\bin\Debug\Assembly-CSharp-firstpass.dll
+C:\Users\jackc\OneDrive\Documents\GitHub\City-Building-AI-Senior-Design-2021\SourceMod\SourceMod\bin\Debug\ICSharpCode.SharpZipLib.dll
+C:\Users\jackc\OneDrive\Documents\GitHub\City-Building-AI-Senior-Design-2021\SourceMod\SourceMod\obj\Debug\SourceMod.csproj.CopyComplete
+C:\Users\jackc\OneDrive\Documents\GitHub\City-Building-AI-Senior-Design-2021\SourceMod\SourceMod\obj\Debug\SourceMod.dll
+C:\Users\jackc\OneDrive\Documents\GitHub\City-Building-AI-Senior-Design-2021\SourceMod\SourceMod\obj\Debug\SourceMod.pdb

@@ -113,6 +113,7 @@ namespace Tutorial
         {
             DateTime time = DateTime.Now;
             String o = ("mod start at " + time.ToString());
+            String test_change = "test change";
             DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
         }
 

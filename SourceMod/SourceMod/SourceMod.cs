@@ -63,6 +63,118 @@ namespace Tutorial
         }
     }
 
+    public class performance_measures
+    {
+        uint population = 0;
+        int happiness;
+        int life_span;
+        int sheltered;
+        int sick_count;
+
+        // infrastructure
+        int electricity_consumption;
+        int water_consumption;
+        int garbage;
+
+        // economy
+        int unemployment;
+
+        // society
+        int criminal_amount;
+        int extra_criminals;
+
+        // education
+        int education_1_capacity;
+        int education_1_need;
+        int education_1_rate;
+        int education_2_capacity;
+        int education_2_need;
+        int education_2_rate;
+        int education_3_capacity;
+        int education_3_need;
+        int education_3_rate;
+
+        // environment
+        int water_pollution;
+        int ground_pollution;
+
+        public performance_measures()
+        {
+
+        }
+
+        public void get_performance_measures()
+        {
+            var _districtManager = Singleton<DistrictManager>.instance;
+
+            // health
+            population = _districtManager.m_districts.m_buffer[0].m_populationData.m_finalCount;
+            happiness = _districtManager.m_districts.m_buffer[0].m_finalHappiness;
+            life_span = _districtManager.m_districts.m_buffer[0].GetAverageLifespan();
+            sheltered = _districtManager.m_districts.m_buffer[0].GetShelterCitizenNumber();
+            sick_count = _districtManager.m_districts.m_buffer[0].GetSickCount();
+
+            // infrastructure
+            electricity_consumption = _districtManager.m_districts.m_buffer[0].GetElectricityConsumption();
+            water_consumption = _districtManager.m_districts.m_buffer[0].GetWaterConsumption();
+            garbage = _districtManager.m_districts.m_buffer[0].GetGarbageAmount();
+
+            // economy
+            unemployment = _districtManager.m_districts.m_buffer[0].GetUnemployment();
+
+            // society
+            criminal_amount = _districtManager.m_districts.m_buffer[0].GetCriminalAmount();
+            extra_criminals = _districtManager.m_districts.m_buffer[0].GetExtraCriminals();
+
+            // education
+            education_1_capacity = _districtManager.m_districts.m_buffer[0].GetEducation1Capacity();
+            education_1_need = _districtManager.m_districts.m_buffer[0].GetEducation1Need();
+            education_1_rate = _districtManager.m_districts.m_buffer[0].GetEducation1Rate();
+            education_2_capacity = _districtManager.m_districts.m_buffer[0].GetEducation2Capacity();
+            education_2_need = _districtManager.m_districts.m_buffer[0].GetEducation2Need();
+            education_2_rate = _districtManager.m_districts.m_buffer[0].GetEducation2Rate();
+            education_3_capacity = _districtManager.m_districts.m_buffer[0].GetEducation3Capacity();
+            education_3_need = _districtManager.m_districts.m_buffer[0].GetEducation3Need();
+            education_3_rate = _districtManager.m_districts.m_buffer[0].GetEducation3Rate();
+
+            // environment
+            water_pollution = _districtManager.m_districts.m_buffer[0].GetWaterPollution();
+            ground_pollution = _districtManager.m_districts.m_buffer[0].GetGroundPollution();
+        }
+
+        public void print_performance_measures()
+        {
+            string message1 =
+                    "HEALTH" +
+                    "\npopulation = " + population.ToString() +
+                    "\nhappiness = " + happiness.ToString() +
+                    "\nlife span = " + life_span.ToString() +
+                    "\nsheltered citizens = " + sheltered.ToString() +
+                    "\nsick count = " + sick_count.ToString() +
+                    "\nINFRASTRUCTURE" +
+                    "\nelectricity consumption = " + electricity_consumption.ToString() +
+                    "\nwater consumption = " + water_consumption.ToString() +
+                    "\ngarbage amount = " + garbage.ToString() +
+                    "\nECONOMY" +
+                    "\nunemployment = " + unemployment.ToString() +
+                    "\nSOCIETY" +
+                    "\ncriminal amount = " + criminal_amount.ToString() +
+                    "\nextra criminals = " + extra_criminals.ToString() +
+                    "\nEDUCATION" +
+                    "\neducation 1 capacity = " + education_1_capacity.ToString() +
+                    "\neducation 1 need = " + education_1_need.ToString() +
+                    "\neducation 1 rate = " + education_1_rate.ToString() +
+                    "\neducation 2 capacity = " + education_2_capacity.ToString() +
+                    "\neducation 2 need = " + education_2_need.ToString() +
+                    "\neducation 2 rate = " + education_2_rate.ToString() +
+                    "\neducation 3 capacity = " + education_3_capacity.ToString() +
+                    "\neducation 3 need = " + education_3_need.ToString() +
+                    "\neducation 3 rate = " + education_3_rate.ToString() +
+                    "\nwater pollution = " + water_pollution.ToString() +
+                    "\nground pollution = " + ground_pollution.ToString();
+            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, message1);
+        }
+    }
 
     public class dataReader : MonoBehaviour
     {

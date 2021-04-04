@@ -186,6 +186,10 @@ namespace Tutorial
         private ulong[] m_collidingBuildings2 = new ulong[768];
         private int m_collidingDepth = 0;
 
+        private long milliseconds = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+        private long msperticks = 1000;
+
+
         public float m_brushSize = 200f;
 
         public String[] prefabNames = {
@@ -231,9 +235,26 @@ namespace Tutorial
 
         void Update()
         {
+            long newmilliseconds = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+            long delta = newmilliseconds - milliseconds;
+            if (delta >= msperticks)
+            {
+                String o = delta.ToString();
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                milliseconds = newmilliseconds;
+            }
+ 
             if (i == 0)
             {
-                i++;
+                testfunction();
+            }
+            i++;
+
+            
+                
+        }
+        void testfunction()
+        {
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "update check");
                 Vector3 loc2 = new Vector3(50, 50, 0);
                 Vector3 loc3 = new Vector3(-50, -50, 0);
@@ -299,15 +320,8 @@ namespace Tutorial
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
 
                 //RoadAI rai = Singleton<RoadAI>.instance;
-
-            }
-            if (i % 100 == 0)
-            {
-                //MouseTools.OutputMousePos();
-            }
-
-            i++;
         }
+
         public bool CreateBuilding(out ushort building, ref Randomizer randomizer, uint prefabID, Vector3 position, float angle, int length)
         {
             BuildingInfo prefab = PrefabCollection<BuildingInfo>.GetPrefab(prefabID);

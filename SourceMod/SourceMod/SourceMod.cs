@@ -11,6 +11,10 @@ using ColossalFramework.Math;
 using ICities;
 using UnityEngine;
 using ColossalFramework.IO;
+using System.IO.Pipes;
+using System.IO;
+using System.Threading;
+
 namespace Tutorial
 {
 
@@ -65,38 +69,38 @@ namespace Tutorial
 
     public class performance_measures
     {
-        uint population = 0;
-        int happiness;
-        int life_span;
-        int sheltered;
-        int sick_count;
+        public uint population = 0;
+        public int happiness;
+        public int life_span;
+        public int sheltered;
+        public int sick_count;
 
         // infrastructure
-        int electricity_consumption;
-        int water_consumption;
-        int garbage;
+        public int electricity_consumption;
+        public int water_consumption;
+        public int garbage;
 
         // economy
-        int unemployment;
+        public int unemployment;
 
         // society
-        int criminal_amount;
-        int extra_criminals;
+        public int criminal_amount;
+        public int extra_criminals;
 
         // education
-        int education_1_capacity;
-        int education_1_need;
-        int education_1_rate;
-        int education_2_capacity;
-        int education_2_need;
-        int education_2_rate;
-        int education_3_capacity;
-        int education_3_need;
-        int education_3_rate;
+        public int education_1_capacity;
+        public int education_1_need;
+        public int education_1_rate;
+        public int education_2_capacity;
+        public int education_2_need;
+        public int education_2_rate;
+        public int education_3_capacity;
+        public int education_3_need;
+        public int education_3_rate;
 
         // environment
-        int water_pollution;
-        int ground_pollution;
+        public int water_pollution;
+        public int ground_pollution;
 
         public performance_measures()
         {
@@ -189,6 +193,7 @@ namespace Tutorial
         private long milliseconds = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
         private long msperticks = 1000;
 
+        private long datatick = 0;
 
         public float m_brushSize = 200f;
 
@@ -231,6 +236,8 @@ namespace Tutorial
             String o = ("mod start at " + time.ToString());
             String test_change = "test change";
             DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+            Thread dataTransferThread = new Thread(sendData);
+            dataTransferThread.Start();
         }
 
         void Update()
@@ -242,6 +249,7 @@ namespace Tutorial
                 String o = delta.ToString();
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
                 milliseconds = newmilliseconds;
+                datatick += 1;
             }
  
             if (i == 0)
@@ -875,6 +883,53 @@ namespace Tutorial
                         break;
                 }
             }
+        }
+
+        void sendData()
+        {
+
+
+            long lasttick = datatick;
+            var server = new NamedPipeServerStream("NP");
+            Console.WriteLine("Waiting for connection..");
+            server.WaitForConnection();
+
+            Console.WriteLine("Conected.");
+            var br = new BinaryReader(server);
+            var bw = new BinaryWriter(server);
+
+            performance_measures pm = new performance_measures();
+
+            while (true)
+            {
+                while (datatick == lasttick) ;
+                try
+                {
+                    pm.get_performance_measures();
+                    uint p = pm.population;
+                    String sp = p.ToString();
+
+                    var le = (int)br.ReadUInt32();
+                    var st = new string(br.ReadChars(le));
+
+                    String op = "read: "+ st;
+                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, op);
+                    string o = "Pop: " + p;// + ", tick: " + (int)lasttick;
+
+                    var buf = Encoding.ASCII.GetBytes(o);
+                    bw.Write((uint)buf.Length);
+                    bw.Write(buf);
+                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                    datatick = lasttick;
+                }
+                catch (EndOfStreamException)
+                {
+                    break;
+                }
+            }
+            Console.WriteLine("Client disconnected");
+            server.Close();
+            server.Dispose();
         }
     }
 

@@ -34,7 +34,7 @@ def dosomething(st):
     if len(x) > 0:
         i = re.findall(r'\d+', st)
         print("found population variable: ", i[0])
-    l = st.split(", ");
+    l = st.split(", ")
     for i in range (len(pms)):
         pms[i] = l[i]
         pmd[pmids[i]] = pms[i]

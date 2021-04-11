@@ -70,50 +70,45 @@ namespace Tutorial
     public class performance_measures
     {
         public uint population = 0;
-        public int happiness;
-        public int life_span;
-        public int sheltered;
-        public int sick_count;
+        public int happiness = 0;
+        public int life_span = 0;
+        public int sheltered = 0;
+        public int sick_count = 0;
 
         // infrastructure
-        public int electricity_consumption;
-        public int electricity_capacity;
-        public int water_consumption;
-        public int water_capacity;
-        public int garbage;
+        public int electricity_consumption = 0;
+        public int water_consumption = 0;
+        public int garbage = 0;
 
         // economy
-        public int unemployment;
+        public int unemployment = 0;
 
         // society
-        public int criminal_amount;
-        public int extra_criminals;
+        public int criminal_amount = 0;
+        public int extra_criminals = 0;
 
         // education
-        public int education_1_capacity;
-        public int education_1_need;
-        public int education_1_rate;
-        public int education_2_capacity;
-        public int education_2_need;
-        public int education_2_rate;
-        public int education_3_capacity;
-        public int education_3_need;
-        public int education_3_rate;
+        public int education_1_capacity = 0;
+        public int education_1_need = 0;
+        public int education_1_rate = 0;
+        public int education_2_capacity = 0;
+        public int education_2_need = 0;
+        public int education_2_rate = 0;
+        public int education_3_capacity = 0;
+        public int education_3_need = 0;
+        public int education_3_rate = 0;
 
         // environment
-        public int water_pollution;
-        public int ground_pollution;
+        public int water_pollution = 0;
+        public int ground_pollution = 0;
 
         // demand
-        public int residential_demand;
-        public int residential_low_demand;
-        public int residential_high_demand;
         public int commercial_demand;
-        public int commercial_low_demand;
-        public int commercial_high_demand;
+        public int residential_demand;
         public int workplace_demand;
-        public int industrial_demand;
-        public int office_demand;
+        public int actual_commercial_demand;
+        public int actual_residential_demand;
+        public int actual_workplace_demand;
 
         public performance_measures()
         {
@@ -123,6 +118,7 @@ namespace Tutorial
         public void get_performance_measures()
         {
             var _districtManager = Singleton<DistrictManager>.instance;
+            var _zoneManager = Singleton<ZoneManager>.instance;
 
             // health
             population = _districtManager.m_districts.m_buffer[0].m_populationData.m_finalCount;
@@ -159,15 +155,12 @@ namespace Tutorial
             ground_pollution = _districtManager.m_districts.m_buffer[0].GetGroundPollution();
 
             // demand
-            residential_demand = _districtManager.m_districts.m_buffer[0].CalculateResidentialDemandOffset();
-            residential_low_demand = _districtManager.m_districts.m_buffer[0].CalculateResidentialLowDemandOffset();
-            residential_high_demand = _districtManager.m_districts.m_buffer[0].CalculateResidentialHighDemandOffset();
-            commercial_demand = _districtManager.m_districts.m_buffer[0].CalculateCommercialDemandOffset();
-            commercial_low_demand = _districtManager.m_districts.m_buffer[0].CalculateCommercialLowDemandOffset();
-            commercial_high_demand = _districtManager.m_districts.m_buffer[0].CalculateCommercialHighDemandOffset();
-            workplace_demand = _districtManager.m_districts.m_buffer[0].CalculateWorkplaceDemandOffset();
-            industrial_demand = _districtManager.m_districts.m_buffer[0].CalculateIndustrialDemandOffset();
-            office_demand = _districtManager.m_districts.m_buffer[0].CalculateOfficeDemandOffset();
+            commercial_demand = _zoneManager.m_commercialDemand;
+            residential_demand = _zoneManager.m_residentialDemand;
+            workplace_demand = _zoneManager.m_workplaceDemand;
+            actual_commercial_demand = _zoneManager.m_actualCommercialDemand;
+            actual_residential_demand = _zoneManager.m_actualResidentialDemand;
+            actual_workplace_demand = _zoneManager.m_actualWorkplaceDemand;
         }
 
         public void print_performance_measures()
@@ -199,18 +192,44 @@ namespace Tutorial
                     "\neducation 3 need = " + education_3_need.ToString() +
                     "\neducation 3 rate = " + education_3_rate.ToString() +
                     "\nwater pollution = " + water_pollution.ToString() +
-                    "\nground pollution = " + ground_pollution.ToString() +
+                    "\nground pollution = " + ground_pollution.ToString() + 
                     "\nDEMAND" +
                     "\nresidential demand = " + residential_demand.ToString() +
-                    "\nresidential low demand = " + residential_low_demand.ToString() +
-                    "\nresidential high demand = " + residential_high_demand.ToString() +
                     "\ncommercial demand = " + commercial_demand.ToString() +
-                    "\ncommercial low demand = " + commercial_low_demand.ToString() +
-                    "\ncommercial high demand = " + commercial_high_demand.ToString() +
                     "\nworkplace demand = " + workplace_demand.ToString() +
-                    "\nindustrial demand = " + industrial_demand.ToString() +
-                    "\noffice demand = " + office_demand.ToString();
+                    "\nactual_residential_demand = " + actual_residential_demand.ToString() +
+                    "\nactual_commercial_demand = " + actual_commercial_demand.ToString() +
+                    "\nactual_workplace_demand = " + actual_workplace_demand.ToString(); ;
             DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, message1);
+        }
+
+        public string performance_measures_cs()
+        {
+            string s1 =
+                    population.ToString() +
+                    ", " + happiness.ToString() +
+                    ", " + life_span.ToString() +
+                    ", " + sheltered.ToString() +
+                    ", " + sick_count.ToString() +
+                    ", " + electricity_consumption.ToString() +
+                    ", " + water_consumption.ToString() +
+                    ", " + garbage.ToString() +
+                    ", " + unemployment.ToString() +
+                    ", " + criminal_amount.ToString() +
+                    ", " + extra_criminals.ToString() +
+                    ", " + education_1_capacity.ToString() +
+                    ", " + education_1_need.ToString() +
+                    ", " + education_1_rate.ToString() +
+                    ", " + education_2_capacity.ToString() +
+                    ", " + education_2_need.ToString() +
+                    ", " + education_2_rate.ToString() +
+                    ", " + education_3_capacity.ToString() +
+                    ", " + education_3_need.ToString() +
+                    ", " + education_3_rate.ToString() +
+                    ", " + water_pollution.ToString() +
+                    ", " + ground_pollution.ToString();
+
+            return s1;
         }
     }
 
@@ -940,20 +959,18 @@ namespace Tutorial
                 try
                 {
                     pm.get_performance_measures();
-                    uint p = pm.population;
-                    String sp = p.ToString();
 
                     var le = (int)br.ReadUInt32();
                     var st = new string(br.ReadChars(le));
 
                     String op = "read: " + st;
                     DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, op);
-                    string o = "Pop: " + p;// + ", tick: " + (int)lasttick;
+                    string o = pm.performance_measures_cs();
 
                     var buf = Encoding.ASCII.GetBytes(o);
                     bw.Write((uint)buf.Length);
                     bw.Write(buf);
-                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o); this crashes for some reason
                     datatick = lasttick;
                 }
                 catch (EndOfStreamException)

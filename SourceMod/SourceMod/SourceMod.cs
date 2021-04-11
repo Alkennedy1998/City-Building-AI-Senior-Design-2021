@@ -70,37 +70,37 @@ namespace Tutorial
     public class performance_measures
     {
         public uint population = 0;
-        public int happiness;
-        public int life_span;
-        public int sheltered;
-        public int sick_count;
+        public int happiness = 0;
+        public int life_span= 0;
+        public int sheltered = 0;
+        public int sick_count = 0;
 
         // infrastructure
-        public int electricity_consumption;
-        public int water_consumption;
-        public int garbage;
+        public int electricity_consumption = 0;
+        public int water_consumption = 0;
+        public int garbage = 0;
 
         // economy
-        public int unemployment;
+        public int unemployment = 0;
 
         // society
-        public int criminal_amount;
-        public int extra_criminals;
+        public int criminal_amount = 0;
+        public int extra_criminals = 0;
 
         // education
-        public int education_1_capacity;
-        public int education_1_need;
-        public int education_1_rate;
-        public int education_2_capacity;
-        public int education_2_need;
-        public int education_2_rate;
-        public int education_3_capacity;
-        public int education_3_need;
-        public int education_3_rate;
+        public int education_1_capacity = 0;
+        public int education_1_need = 0;
+        public int education_1_rate = 0;
+        public int education_2_capacity = 0;
+        public int education_2_need = 0;
+        public int education_2_rate = 0;
+        public int education_3_capacity = 0;
+        public int education_3_need = 0;
+        public int education_3_rate = 0;
 
         // environment
-        public int water_pollution;
-        public int ground_pollution;
+        public int water_pollution = 0;
+        public int ground_pollution = 0;
 
         public performance_measures()
         {
@@ -177,6 +177,35 @@ namespace Tutorial
                     "\nwater pollution = " + water_pollution.ToString() +
                     "\nground pollution = " + ground_pollution.ToString();
             DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, message1);
+        }
+
+        public string performance_measures_cs()
+        {
+            string s1 =
+                    population.ToString() +
+                    ", " + happiness.ToString() +
+                    ", " + life_span.ToString() +
+                    ", " + sheltered.ToString() +
+                    ", " + sick_count.ToString() +
+                    ", " + electricity_consumption.ToString() +
+                    ", " + water_consumption.ToString() +
+                    ", " + garbage.ToString() +
+                    ", " + unemployment.ToString() +
+                    ", " + criminal_amount.ToString() +
+                    ", " + extra_criminals.ToString() +
+                    ", " + education_1_capacity.ToString() +
+                    ", " + education_1_need.ToString() +
+                    ", " + education_1_rate.ToString() +
+                    ", " + education_2_capacity.ToString() +
+                    ", " + education_2_need.ToString() +
+                    ", " + education_2_rate.ToString() +
+                    ", " + education_3_capacity.ToString() +
+                    ", " + education_3_need.ToString() +
+                    ", " + education_3_rate.ToString() +
+                    ", " + water_pollution.ToString() +
+                    ", " + ground_pollution.ToString();
+
+            return s1;
         }
     }
 
@@ -906,20 +935,18 @@ namespace Tutorial
                 try
                 {
                     pm.get_performance_measures();
-                    uint p = pm.population;
-                    String sp = p.ToString();
 
                     var le = (int)br.ReadUInt32();
                     var st = new string(br.ReadChars(le));
 
                     String op = "read: "+ st;
                     DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, op);
-                    string o = "Pop: " + p;// + ", tick: " + (int)lasttick;
+                    string o = pm.performance_measures_cs();
 
                     var buf = Encoding.ASCII.GetBytes(o);
                     bw.Write((uint)buf.Length);
                     bw.Write(buf);
-                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o); this crashes for some reason
                     datatick = lasttick;
                 }
                 catch (EndOfStreamException)

@@ -28,7 +28,7 @@ namespace Tutorial
 
         public string Description
         {
-            get { return "hopefully this works againnnnnnnnnnnn"; }
+            get { return "Jack Cunningham, Andrew Wang, Carter Duncan, Alexander Kennedy"; }
         }
     }
 
@@ -60,16 +60,12 @@ namespace Tutorial
                 String o = ("mousepos " + op);
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
             }
-            //int a = 0;
-            //int pop = (int)Singleton<DistrictManager>.instance.m_districts.m_buffer[a].m_populationData.m_finalCount;
-
-
         }
     }
 
     public class performance_measures
     {
-        public uint population = 0;
+        public uint population = 0; //public performance measure storage
         public int happiness = 0;
         public int life_span = 0;
         public int sheltered = 0;
@@ -103,19 +99,16 @@ namespace Tutorial
         public int ground_pollution = 0;
 
         // demand
-        public int commercial_demand;
-        public int residential_demand;
-        public int workplace_demand;
-        public int actual_commercial_demand;
-        public int actual_residential_demand;
-        public int actual_workplace_demand;
+        public int commercial_demand = 0;
+        public int residential_demand = 0;
+        public int workplace_demand = 0;
+        public int actual_commercial_demand = 0;
+        public int actual_residential_demand = 0;
+        public int actual_workplace_demand = 0;
 
-        public performance_measures()
-        {
+        public performance_measures(){} //class constructor
 
-        }
-
-        public void get_performance_measures()
+        public void get_performance_measures() //get performance measures from game api
         {
             var _districtManager = Singleton<DistrictManager>.instance;
             var _zoneManager = Singleton<ZoneManager>.instance;
@@ -163,7 +156,7 @@ namespace Tutorial
             actual_workplace_demand = _zoneManager.m_actualWorkplaceDemand;
         }
 
-        public void print_performance_measures()
+        public void print_performance_measures() //prints all performance measures into in-game console
         {
             string message1 =
                     "HEALTH" +
@@ -172,15 +165,19 @@ namespace Tutorial
                     "\nlife span = " + life_span.ToString() +
                     "\nsheltered citizens = " + sheltered.ToString() +
                     "\nsick count = " + sick_count.ToString() +
+
                     "\nINFRASTRUCTURE" +
                     "\nelectricity consumption = " + electricity_consumption.ToString() +
                     "\nwater consumption = " + water_consumption.ToString() +
                     "\ngarbage amount = " + garbage.ToString() +
+
                     "\nECONOMY" +
                     "\nunemployment = " + unemployment.ToString() +
+
                     "\nSOCIETY" +
                     "\ncriminal amount = " + criminal_amount.ToString() +
                     "\nextra criminals = " + extra_criminals.ToString() +
+
                     "\nEDUCATION" +
                     "\neducation 1 capacity = " + education_1_capacity.ToString() +
                     "\neducation 1 need = " + education_1_need.ToString() +
@@ -193,13 +190,15 @@ namespace Tutorial
                     "\neducation 3 rate = " + education_3_rate.ToString() +
                     "\nwater pollution = " + water_pollution.ToString() +
                     "\nground pollution = " + ground_pollution.ToString() + 
+
                     "\nDEMAND" +
                     "\nresidential demand = " + residential_demand.ToString() +
                     "\ncommercial demand = " + commercial_demand.ToString() +
                     "\nworkplace demand = " + workplace_demand.ToString() +
                     "\nactual_residential_demand = " + actual_residential_demand.ToString() +
                     "\nactual_commercial_demand = " + actual_commercial_demand.ToString() +
-                    "\nactual_workplace_demand = " + actual_workplace_demand.ToString(); ;
+                    "\nactual_workplace_demand = " + actual_workplace_demand.ToString();
+
             DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, message1);
         }
 
@@ -250,6 +249,9 @@ namespace Tutorial
 
         public float m_brushSize = 200f;
 
+        public bool debug_messages = false; //controls messages sent to in-game console
+        public bool test_building = false; //controls test_function execution
+
         public String[] prefabNames = {
             "Coal Power Plant",
             "Wind Turbine",
@@ -282,12 +284,10 @@ namespace Tutorial
             "University"
         };
 
-
         void Start()
         {
             DateTime time = DateTime.Now;
             String o = ("mod start at " + time.ToString());
-            String test_change = "test change";
             DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
             Thread dataTransferThread = new Thread(sendData);
             dataTransferThread.Start();
@@ -299,7 +299,7 @@ namespace Tutorial
             long delta = newmilliseconds - milliseconds;
             if (delta >= msperticks)
             {
-                String o = delta.ToString();
+                String o = "delta" + delta.ToString();
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
                 milliseconds = newmilliseconds;
                 datatick += 1;
@@ -310,77 +310,74 @@ namespace Tutorial
                 testfunction();
             }
             i++;
-
-
-
         }
+
         void testfunction()
         {
-            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "update check");
-            Vector3 loc2 = new Vector3(50, 50, 0);
-            Vector3 loc3 = new Vector3(-50, -50, 0);
-            string building = "cemetery";
-            int max = 638;
-            //0 = Medical Clinic
-            //1 = Hosptial
-            //2 = Medical Center
-            //3 = Crematory
-            //4 = Cemetary
-            //5 = Eldercare 01
-            //6 = Child Health Center 01
-            //7 H3 4x3 Shop03
-            //8 H1 1x1 Shop07
-            //9 H13 3x4 Shop04
+            if(test_building == true) {
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "update check");
+                Vector3 loc2 = new Vector3(50, 50, 0);
+                Vector3 loc3 = new Vector3(-50, -50, 0);
+                int max = 638;
+                //0 = Medical Clinic
+                //1 = Hosptial
+                //2 = Medical Center
+                //3 = Crematory
+                //4 = Cemetary
+                //5 = Eldercare 01
+                //6 = Child Health Center 01
+                //7 H3 4x3 Shop03
+                //8 H1 1x1 Shop07
+                //9 H13 3x4 Shop04
 
-            BuildingManager buildingManager = Singleton<BuildingManager>.instance;
-            Vector3 loc1 = new Vector3(0, 0, 0);
-            Vector3 loc4 = new Vector3(100, 0, 0);
-            Vector3 loc5 = new Vector3(50, 0, 0);
+                BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+                Vector3 loc1 = new Vector3(0, 0, 0);
+                Vector3 loc4 = new Vector3(100, 0, 0);
+                Vector3 loc5 = new Vector3(50, 0, 0);
 
+                float angle = 0;
+                int length = 0;
 
-            float angle = 0;
-            int length = 0;
+                BuildingInfo prefab = PrefabCollection<BuildingInfo>.GetPrefab((uint)1);
+                int givemoney = -35000000;
+                Singleton<EconomyManager>.instance.FetchResource(EconomyManager.Resource.Construction, givemoney, prefab.m_class);
+                long before = Singleton<EconomyManager>.instance.InternalCashAmount;
+                String o = ("money before: " + before);
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                CreateBuilding(out var building2, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc4, angle, length);
+                CreateBuilding(out var building3, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc4, angle, length);
+                CreateBuilding(out var building4, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc5, angle, length);
+                GetWaterSources();
 
-            BuildingInfo prefab = PrefabCollection<BuildingInfo>.GetPrefab((uint)1);
-            int givemoney = -35000000;
-            Singleton<EconomyManager>.instance.FetchResource(EconomyManager.Resource.Construction, givemoney, prefab.m_class);
-            long before = Singleton<EconomyManager>.instance.InternalCashAmount;
-            String o = ("money before: " + before);
-            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
-            //CreateBuilding(out var building2, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc4, angle, length);
-            //CreateBuilding(out var building3, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc4, angle, length);
-            //CreateBuilding(out var building4, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc5, angle, length);
-            //GetWaterSources();
+                Vector3 v = new Vector3(0, 0, 8);
+                Vector3 v2 = new Vector3(1, 0, 24);
+                Vector3 v3 = new Vector3(2, 0, 40);
+                Vector3 v4 = new Vector3(3, 0, -8);
+                Vector3 v5 = new Vector3(4, 0, -24);
+                Vector3 v6 = new Vector3(5, 0, -40);
+                Vector3 v7 = new Vector3(6, 0, -56);
+                Vector3 v8 = new Vector3(7, 0, -72);
+                Vector3 v9 = new Vector3(8, 0, -150);
 
-            Vector3 v = new Vector3(0, 0, 8);
-            Vector3 v2 = new Vector3(1, 0, 24);
-            Vector3 v3 = new Vector3(2, 0, 40);
-            Vector3 v4 = new Vector3(3, 0, -8);
-            Vector3 v5 = new Vector3(4, 0, -24);
-            Vector3 v6 = new Vector3(5, 0, -40);
-            Vector3 v7 = new Vector3(6, 0, -56);
-            Vector3 v8 = new Vector3(7, 0, -72);
-            Vector3 v9 = new Vector3(8, 0, -150);
+                // Ray m_mouseRay = Camera.main.ScreenPointToRay(mousePosition);    needs debugging
 
-            //Ray m_mouseRay = Camera.main.ScreenPointToRay(mousePosition);
+                float distsq = 1000;
+                ushort block = 0;
+                //Singleton<NetManager>.instance.m_segments.m_buffer[m_closeSegGetClosestZoneBlock(v, ref distsq, ref block);
+                int a = Singleton<NetManager>.instance.m_segments.m_buffer.Length;
+                //Singleton<NetManager>.instance.GetClosestSegments(v, m_closeSegments, out m_closeSegmentCount);
+                o = ("segment count: " + a);
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
 
+                int newzones = ZoneArea(v, ItemClass.Zone.CommercialLow, 10);
+                newzones = ZoneArea(v9, ItemClass.Zone.CommercialLow, 30);
+                newzones = ZoneArea(v, ItemClass.Zone.ResidentialLow, 20);
 
-            float distsq = 1000;
-            ushort block = 0;
-            //Singleton<NetManager>.instance.m_segments.m_buffer[m_closeSegGetClosestZoneBlock(v, ref distsq, ref block);
-            int a = Singleton<NetManager>.instance.m_segments.m_buffer.Length;
-            //Singleton<NetManager>.instance.GetClosestSegments(v, m_closeSegments, out m_closeSegmentCount);
-            //o = ("segment count: " + a);
-            //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                o = ("painted zones: " + newzones);
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
 
-            int newzones = ZoneArea(v, ItemClass.Zone.CommercialLow, 10);
-            newzones = ZoneArea(v9, ItemClass.Zone.CommercialLow, 30);
-            newzones = ZoneArea(v, ItemClass.Zone.ResidentialLow, 20);
-
-            o = ("painted zones: " + newzones);
-            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
-
-            //RoadAI rai = Singleton<RoadAI>.instance;
+                RoadAI rai = Singleton<RoadAI>.instance; 
+            }
         }
 
         public bool CreateBuilding(out ushort building, ref Randomizer randomizer, uint prefabID, Vector3 position, float angle, int length)
@@ -390,12 +387,13 @@ namespace Tutorial
             building = building2;
             return f;
         }
+
         public bool CreateBuilding(out ushort building, ref Randomizer randomizer, BuildingInfo info, Vector3 position, float angle, int length)
         {
             int constructionCost = info.GetConstructionCost();
             String o = ("cost: " + constructionCost);
             DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
-            if (Singleton<EconomyManager>.instance.PeekResource(EconomyManager.Resource.Construction, constructionCost) != constructionCost)
+            if (Singleton<EconomyManager>.instance.PeekResource(EconomyManager.Resource.Construction, constructionCost) != constructionCost) //may need to be changed to < instead of !=
             {
                 o = ("not enough money");
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
@@ -422,8 +420,6 @@ namespace Tutorial
             toolErrors = BuildingTool.CheckSpace(info, info.m_placementMode, relocating, position1, minY, buildingY + info.m_collisionHeight, angle, info.m_cellWidth, info.m_cellLength, test, collidingSegments, collidingBuildings);
 
             EndColliding();
-
-
 
             o = ("errors:" + toolErrors.ToString());
             DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
@@ -516,7 +512,6 @@ namespace Tutorial
             }
         }
 
-
         public void GetWaterSources()
         {
             FastList<WaterSource> watersources = Singleton<TerrainManager>.instance.WaterSimulation.m_waterSources;
@@ -539,7 +534,6 @@ namespace Tutorial
 
                 WaterManager.Node[] nodeData = Singleton<WaterManager>.instance.m_nodeData;
 
-
                 it += 1;
             }
         }
@@ -556,20 +550,29 @@ namespace Tutorial
             while ((flag1 = ApplyClosest(inposition, m_zone, brushsize, out startZone)) == false && brushsize <= maxBrushSize)
             {
                 brushsize *= 2;
-                //String o = ("brushsize: " + brushsize);
-                //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                if (debug_messages)
+                {
+                    String o = ("brushsize: " + brushsize);
+                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                }
             }
             if (flag1 == false)
             {
-                //String o = ("returning on flag1 check");
-                //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                if (debug_messages)
+                {
+                    String o = ("returning on flag1 check");
+                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                }
                 return 0;
             }
 
             if (startZone.magnitude == 0)
             {
-                //String o = ("returning on magnitude check");
-                //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                if (debug_messages)
+                {
+                    String o = ("returning on magnitude check");
+                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                }
                 return 0;
             }
             zones += 1;
@@ -582,14 +585,20 @@ namespace Tutorial
                 while ((flag2 = ApplyClosest(inposition, m_zone, brushsize, out pos)) == false && brushsize <= maxBrushSize)
                 {
                     brushsize *= 2;
-                    //String o = ("brushsize: " + brushsize);
-                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                    if (debug_messages)
+                    {
+                        String o = ("brushsize: " + brushsize);
+                        DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                    }
                 }
                 if (flag2 == true) zones += 1;
                 else
                 {
-                    //String o = ("returning on flag2 check");
-                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                    if (debug_messages)
+                    {
+                    String o = ("returning on flag2 check");
+                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                    }
                     return zones;
                 }
             }
@@ -614,8 +623,13 @@ namespace Tutorial
             int num8 = Mathf.Min((int)((num4 + 46f) / 64f + 75f), 149);
             int num9 = Mathf.Min((int)((num5 + 46f) / 64f + 75f), 149);
 
-            //String o = ("1: " + num + " 2: " + num2 + " 3: " + num3 + " 4: " + num4 + " 5: " + num5 + " 6: " + num6 + " 7: " + num7 + " 8: " + num8 + " 9: " + num9);
-            //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+            String o; //for debug messages
+
+            if (debug_messages)
+            {
+                o = ("1: " + num + " 2: " + num2 + " 3: " + num3 + " 4: " + num4 + " 5: " + num5 + " 6: " + num6 + " 7: " + num7 + " 8: " + num8 + " 9: " + num9);
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+            }
 
             bool flag1 = false;
             ushort num10min = 0;
@@ -632,8 +646,11 @@ namespace Tutorial
                     int num11 = 0;
                     while (num10 != 0)
                     {
-                        //o = ("num10" + num10 + "i = " + i + ", j = " + j + ", pos: " + instance.m_blocks.m_buffer[num10].m_position.x + ", " + instance.m_blocks.m_buffer[num10].m_position.z);
-                        //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                        if (debug_messages)
+                        {
+                            o = ("num10" + num10 + "i = " + i + ", j = " + j + ", pos: " + instance.m_blocks.m_buffer[num10].m_position.x + ", " + instance.m_blocks.m_buffer[num10].m_position.z);
+                            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                        }
                         Vector3 position = instance.m_blocks.m_buffer[num10].m_position;
                         float num12 = Mathf.Max(Mathf.Max(num2 - 46f - position.x, num3 - 46f - position.z), Mathf.Max(position.x - num4 - 46f, position.z - num5 - 46f));
                         if (num12 < 0f)
@@ -642,12 +659,20 @@ namespace Tutorial
                             int jcheck;
                             Vector3 minposcheck;
                             float a = CheckBlock(num10, ref instance.m_blocks.m_buffer[num10], mousePosition, num, true, m_zone, out icheck, out jcheck, out minposcheck);
-                            //o = ("a = " + a + ", min = " + distmin);
-                            //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                            if (debug_messages)
+                            {
+                                o = ("a = " + a + ", min = " + distmin);
+                                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+
+                            }
                             if (a < distmin)
                             {
-                                //o = ("1 = " + instance.m_blocks.m_buffer[num10].m_zone1 + " 2 = " + instance.m_blocks.m_buffer[num10].m_zone2);
-                                //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                                if (debug_messages)
+                                {
+                                    o = ("1 = " + instance.m_blocks.m_buffer[num10].m_zone1 + " 2 = " + instance.m_blocks.m_buffer[num10].m_zone2);
+                                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+
+                                }
 
                                 flag1 = true;
                                 num10min = num10;
@@ -657,8 +682,11 @@ namespace Tutorial
                                 distmin = a;
                             }
                         }
-                        //o = ("num10: "+num10 + ", nextgrid: " + instance.m_blocks.m_buffer[num10].m_nextGridBlock);
-                        //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                        if (debug_messages)
+                        {
+                            o = ("num10: "+num10 + ", nextgrid: " + instance.m_blocks.m_buffer[num10].m_nextGridBlock);
+                            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                        }
 
                         num10 = instance.m_blocks.m_buffer[num10].m_nextGridBlock;
                         if (++num11 >= 49152)
@@ -671,8 +699,12 @@ namespace Tutorial
             }
             if (flag1 == true)
             {
-                //o = ("num10min" + num10min);
-                //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                if (debug_messages)
+                {
+                    o = ("num10min" + num10min);
+                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+
+                }
                 float b = 7f;
                 ApplyBrushClose(num10min, ref instance.m_blocks.m_buffer[num10min], instance.m_blocks.m_buffer[num10min].m_position, b, true, m_zone, mini, minj);
 
@@ -684,8 +716,13 @@ namespace Tutorial
 
         private void ApplyBrushClose(ushort blockIndex, ref ZoneBlock data, Vector3 position, float brushRadius, bool zoning, ItemClass.Zone m_zone, int i, int j)
         {
-            //String o = ("pos: " + position.x + ", " + position.z);
-            //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+            String o; //for debugging messages
+            if (debug_messages)
+            {
+                o = ("pos: " + position.x + ", " + position.z);
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+
+            }
 
             bool m_zoning = zoning;
             bool m_dezoning = !zoning;
@@ -704,8 +741,12 @@ namespace Tutorial
                 flag = true;
             }
 
-            //o = ("flag" + flag);
-            //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+            if (debug_messages)
+            {
+                o = ("flag" + flag);
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+
+            }
             if (flag)
             {
                 data.RefreshZoning(blockIndex);
@@ -716,8 +757,6 @@ namespace Tutorial
             }
 
         }
-
-
 
         private float CheckBlock(ushort blockIndex, ref ZoneBlock data, Vector3 position, float brushRadius, bool zoning, ItemClass.Zone m_zone, out int iout, out int jout, out Vector3 minpos)
         {
@@ -755,7 +794,6 @@ namespace Tutorial
                     }
                     if (m_zoning)
                     {
-                        //if ((m_zone == ItemClass.Zone.Unzoned || data.GetZone(j, i) == ItemClass.Zone.Unzoned) && CheckBlock(j,i,m_zone,data))
                         if ((m_zone == ItemClass.Zone.Unzoned || data.GetZone(j, i) == ItemClass.Zone.Unzoned) && CheckBlock(j, i, m_zone, data))
                         {
                             if (num2 < minnum2)
@@ -831,8 +869,11 @@ namespace Tutorial
             int num8 = Mathf.Min((int)((num4 + 46f) / 64f + 75f), 149);
             int num9 = Mathf.Min((int)((num5 + 46f) / 64f + 75f), 149);
 
-            //String o = ("1: " + num + " 2: " + num2 + " 3: " + num3 + " 4: " + num4 + " 5: " + num5 + " 6: " + num6 + " 7: " + num7 + " 8: " + num8 + " 9: " + num9);
-            //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+            if (debug_messages)
+            {
+                String o = ("1: " + num + " 2: " + num2 + " 3: " + num3 + " 4: " + num4 + " 5: " + num5 + " 6: " + num6 + " 7: " + num7 + " 8: " + num8 + " 9: " + num9);
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+            }
 
             for (int i = num7; i <= num9; i++)
             {
@@ -940,8 +981,6 @@ namespace Tutorial
 
         void sendData()
         {
-
-
             long lasttick = datatick;
             var server = new NamedPipeServerStream("NP");
             Console.WriteLine("Waiting for connection..");
@@ -970,7 +1009,6 @@ namespace Tutorial
                     var buf = Encoding.ASCII.GetBytes(o);
                     bw.Write((uint)buf.Length);
                     bw.Write(buf);
-                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o); this crashes for some reason
                     datatick = lasttick;
                 }
                 catch (EndOfStreamException)

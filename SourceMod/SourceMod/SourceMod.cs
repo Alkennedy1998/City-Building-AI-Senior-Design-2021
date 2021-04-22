@@ -28,7 +28,7 @@ namespace Tutorial
 
         public string Description
         {
-            get { return "hopefully this works againnnnnnnnnnnn"; }
+            get { return "Updated 4/14/21"; }
         }
     }
 
@@ -199,12 +199,13 @@ namespace Tutorial
                     "\nworkplace demand = " + workplace_demand.ToString() +
                     "\nactual_residential_demand = " + actual_residential_demand.ToString() +
                     "\nactual_commercial_demand = " + actual_commercial_demand.ToString() +
-                    "\nactual_workplace_demand = " + actual_workplace_demand.ToString(); ;
+                    "\nactual_workplace_demand = " + actual_workplace_demand.ToString();
             DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, message1);
         }
 
         public string performance_measures_cs()
         {
+            //length = 28
             string s1 =
                     population.ToString() +
                     ", " + happiness.ToString() +
@@ -227,7 +228,13 @@ namespace Tutorial
                     ", " + education_3_need.ToString() +
                     ", " + education_3_rate.ToString() +
                     ", " + water_pollution.ToString() +
-                    ", " + ground_pollution.ToString();
+                    ", " + ground_pollution.ToString() +
+                    ", " + residential_demand.ToString() +
+                    ", " + commercial_demand.ToString() +
+                    ", " + workplace_demand.ToString() +
+                    ", " + actual_residential_demand.ToString() +
+                    ", " + actual_commercial_demand.ToString() +
+                    ", " + actual_workplace_demand.ToString();
 
             return s1;
         }
@@ -943,33 +950,65 @@ namespace Tutorial
 
 
             long lasttick = datatick;
-            var server = new NamedPipeServerStream("NP");
-            Console.WriteLine("Waiting for connection..");
-            server.WaitForConnection();
+            // var server = new NamedPipeServerStream("NP");
+            NamedPipeClientStream client = new NamedPipeClientStream("NP1");
+            //server.WaitForConnection();
+            client.Connect();
+            //var br = new BinaryReader(server);
+            //var bw = new BinaryWriter(server);
+            //StreamReader br = new StreamReader(client);
+            //StreamWriter bw = new StreamWriter(client);
 
-            Console.WriteLine("Conected.");
-            var br = new BinaryReader(server);
-            var bw = new BinaryWriter(server);
+            
 
             performance_measures pm = new performance_measures();
+
+            
 
             while (true)
             {
                 while (datatick == lasttick) ;
                 try
                 {
+                    
                     pm.get_performance_measures();
 
-                    var le = (int)br.ReadUInt32();
-                    var st = new string(br.ReadChars(le));
+                    //string o = "test c# message";
+                    string o = pm.performance_measures_cs();
+                    var buf = Encoding.ASCII.GetBytes(o);
+                    client.Write(BitConverter.GetBytes(buf.Length), 0, 4);
+                    client.Write(buf, 0, buf.Length);
 
+                    //var le = (int)br.ReadUInt32();
+                    //var st = new string(br.ReadChars(le));
+                    byte[] leng = new byte[4];
+                    //var le = client.ReadByte();
+                    client.Read(leng, 0, 4);
+                    //if (BitConverter.IsLittleEndian)
+                    //    Array.Reverse(leng);
+                    int len = BitConverter.ToInt32(leng,0);
+                    //String otp = "" + len + ", " + leng[0] + ", " + leng[1] + ", " + leng[2] + ", " + leng[3]; 
+                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, otp);
+
+
+
+                    byte[] inbuffer = new byte[1024];
+                    client.Read(inbuffer, 0, len);
+                    String st = System.Text.Encoding.ASCII.GetString(inbuffer);
+                    //for(int it = 0; it < st.Length; it++)
+                    //{
+                    //    String optt = it + ": " + st[it];
+                    //    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, optt);
+                    //}
                     String op = "read: " + st;
                     DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, op);
-                    string o = pm.performance_measures_cs();
 
-                    var buf = Encoding.ASCII.GetBytes(o);
-                    bw.Write((uint)buf.Length);
-                    bw.Write(buf);
+                    //string o = pm.performance_measures_cs();
+
+                    //bw.Write((uint)buf.Length);
+                    //bw.Write(buf);
+                    //bw.WriteLine(buf);
+                    //bw.Flush();
                     //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o); this crashes for some reason
                     datatick = lasttick;
                 }
@@ -979,8 +1018,8 @@ namespace Tutorial
                 }
             }
             Console.WriteLine("Client disconnected");
-            server.Close();
-            server.Dispose();
+            client.Close();
+            client.Dispose();
         }
     }
 

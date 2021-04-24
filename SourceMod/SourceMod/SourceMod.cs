@@ -232,6 +232,69 @@ namespace Tutorial
         }
     }
 
+    public class action_parser : dataReader
+    {
+        char token_delimiter = '|';
+        char vector_delimiter = ',';
+
+        public void parse_actions(string input_string)
+        {
+            List<string> tokens = split_string_to_tokens(input_string, token_delimiter);
+            run_tokens(tokens);
+        }
+
+        public List<string> split_string_to_tokens(string input_string, char delimiter)
+        {
+            List<string> tokenList = new List<string>();
+            int token_start_index = 0;
+            for (int counter = 0; counter < input_string.Length; counter++)
+            {
+                if (input_string[counter] == delimiter)
+                {
+                    tokenList.Add(input_string.Substring(token_start_index, counter - token_start_index));
+                    token_start_index = counter + 1;
+                }
+            }
+            return tokenList;
+        }
+
+        Vector3 string_to_vector3(string input_string)
+        {
+            float[] float_array = input_string.Split(new string[] { ", " }, StringSplitOptions.None).Select(x => float.Parse(x)).ToArray();
+            Vector3 new_vector = new Vector3(float_array[0], float_array[1], float_array[2]);
+            return new_vector;
+        }
+
+        public void run_tokens(List<string> tokens)
+        {
+            switch (tokens[0])
+            {
+                case "createbuilding":
+                    BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+                    //uint prefab = Convert.ToUInt32(tokens[1], 16); // may need ToUInt16 or ToUint64
+                    uint prefab = uint.Parse(tokens[1]);
+                    Vector3 position = string_to_vector3(tokens[2]);
+                    float angle = float.Parse(tokens[3]);
+                    int length = int.Parse(tokens[4]);
+
+                    CreateBuilding(out var building2, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, position, angle, length);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void print_tokens_to_console(List<string> tokens)
+        {
+            string message = "";
+            for (int counter = 0; counter < tokens.Count; counter++)
+            {
+                message = message + token_delimiter + tokens[counter];
+            }
+            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, message);
+        }
+    }
+
     public class dataReader : MonoBehaviour
     {
         int i = 0;
@@ -979,36 +1042,68 @@ namespace Tutorial
             }
         }
 
-        void sendData()
-        {
+        void sendData () { 
             long lasttick = datatick;
-            var server = new NamedPipeServerStream("NP");
-            Console.WriteLine("Waiting for connection..");
-            server.WaitForConnection();
+            // var server = new NamedPipeServerStream("NP");
+            NamedPipeClientStream client = new NamedPipeClientStream("NP1");
+            //server.WaitForConnection();
+            client.Connect();
+            //var br = new BinaryReader(server);
+            //var bw = new BinaryWriter(server);
+            //StreamReader br = new StreamReader(client);
+            //StreamWriter bw = new StreamWriter(client);
 
-            Console.WriteLine("Conected.");
-            var br = new BinaryReader(server);
-            var bw = new BinaryWriter(server);
+
 
             performance_measures pm = new performance_measures();
+
+
 
             while (true)
             {
                 while (datatick == lasttick) ;
                 try
                 {
+
                     pm.get_performance_measures();
 
-                    var le = (int)br.ReadUInt32();
-                    var st = new string(br.ReadChars(le));
+                    //string o = "test c# message";
+                    string o = pm.performance_measures_cs();
+                    var buf = Encoding.ASCII.GetBytes(o);
+                    client.Write(BitConverter.GetBytes(buf.Length), 0, 4);
+                    client.Write(buf, 0, buf.Length);
 
+                    //var le = (int)br.ReadUInt32();
+                    //var st = new string(br.ReadChars(le));
+                    byte[] leng = new byte[4];
+                    //var le = client.ReadByte();
+                    client.Read(leng, 0, 4);
+                    //if (BitConverter.IsLittleEndian)
+                    //    Array.Reverse(leng);
+                    int len = BitConverter.ToInt32(leng, 0);
+                    //String otp = "" + len + ", " + leng[0] + ", " + leng[1] + ", " + leng[2] + ", " + leng[3]; 
+                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, otp);
+
+
+
+                    byte[] inbuffer = new byte[1024];
+                    client.Read(inbuffer, 0, len);
+                    String st = System.Text.Encoding.ASCII.GetString(inbuffer);
+                    //for(int it = 0; it < st.Length; it++)
+                    //{
+                    //    String optt = it + ": " + st[it];
+                    //    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, optt);
+                    //}
                     String op = "read: " + st;
                     DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, op);
-                    string o = pm.performance_measures_cs();
 
-                    var buf = Encoding.ASCII.GetBytes(o);
-                    bw.Write((uint)buf.Length);
-                    bw.Write(buf);
+                    //string o = pm.performance_measures_cs();
+
+                    //bw.Write((uint)buf.Length);
+                    //bw.Write(buf);
+                    //bw.WriteLine(buf);
+                    //bw.Flush();
+                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o); this crashes for some reason
                     datatick = lasttick;
                 }
                 catch (EndOfStreamException)
@@ -1017,9 +1112,8 @@ namespace Tutorial
                 }
             }
             Console.WriteLine("Client disconnected");
-            server.Close();
-            server.Dispose();
+            client.Close();
+            client.Dispose();
         }
     }
-
 }

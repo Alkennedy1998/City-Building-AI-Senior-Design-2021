@@ -270,6 +270,7 @@ namespace Tutorial
             switch (tokens[0])
             {
                 case "createbuilding":
+                    //example: "createbuilding | 12 | 34.5, 6.78, 91.0 | 1.2 | 34"
                     BuildingManager buildingManager = Singleton<BuildingManager>.instance;
                     //uint prefab = Convert.ToUInt32(tokens[1], 16); // may need ToUInt16 or ToUint64
                     uint prefab = uint.Parse(tokens[1]);
@@ -278,6 +279,12 @@ namespace Tutorial
                     int length = int.Parse(tokens[4]);
 
                     CreateBuilding(out var building2, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, position, angle, length);
+                    break;
+                case "createzone":
+                    //example: "createzone | 1.2, 3.4, 5.6 | 4 | 30"
+                    Vector3 zone_position = string_to_vector3(tokens[1]);
+                    int type = int.Parse(tokens[2]);
+                    int quantity = int.Parse(tokens[3]);
                     break;
                 default:
                     break;

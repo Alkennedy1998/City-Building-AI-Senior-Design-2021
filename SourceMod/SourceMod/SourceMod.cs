@@ -950,20 +950,17 @@ namespace Tutorial
 
 
             long lasttick = datatick;
-            // var server = new NamedPipeServerStream("NP");
             NamedPipeClientStream client = new NamedPipeClientStream("NP1");
-            //server.WaitForConnection();
-            client.Connect();
-            //var br = new BinaryReader(server);
-            //var bw = new BinaryWriter(server);
-            //StreamReader br = new StreamReader(client);
-            //StreamWriter bw = new StreamWriter(client);
-
-            
-
-            performance_measures pm = new performance_measures();
-
-
+            try
+            {
+                client.Connect(10000);
+            }
+            catch(System.TimeoutException ex)
+            {
+                client = new NamedPipeClientStream("NP2");
+                client.Connect();
+            }
+                performance_measures pm = new performance_measures();
             bool notexiting = true;
             while (notexiting)
             {
@@ -973,53 +970,33 @@ namespace Tutorial
                     
                     pm.get_performance_measures();
 
-                    //string o = "test c# message";
                     string o = pm.performance_measures_cs();
                     var buf = Encoding.ASCII.GetBytes(o);
                     client.Write(BitConverter.GetBytes(buf.Length), 0, 4);
                     client.Write(buf, 0, buf.Length);
 
-                    //var le = (int)br.ReadUInt32();
-                    //var st = new string(br.ReadChars(le));
                     byte[] leng = new byte[4];
-                    //var le = client.ReadByte();
+
                     client.Read(leng, 0, 4);
-                    //if (BitConverter.IsLittleEndian)
-                    //    Array.Reverse(leng);
+
                     int len = BitConverter.ToInt32(leng,0);
-                    //String otp = "" + len + ", " + leng[0] + ", " + leng[1] + ", " + leng[2] + ", " + leng[3]; 
-                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, otp);
-
-
 
                     byte[] inbuffer = new byte[1024];
                     client.Read(inbuffer, 0, len);
                     String st = System.Text.Encoding.ASCII.GetString(inbuffer);
-                    //for(int it = 0; it < st.Length; it++)
-                    //{
-                    //    String optt = it + ": " + st[it];
-                    //    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, optt);
-                    //}
+
                     String op = "read: " + st;
                     DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, op);
 
                     if(st.Contains("reset"))
                     {
-                        //op = "reseettttttingg";
-                        //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, op);
                         client.Close();
                         client.Dispose();
                         notexiting = false;
                         reset();
                     }
 
-                    //string o = pm.performance_measures_cs();
-
-                    //bw.Write((uint)buf.Length);
-                    //bw.Write(buf);
-                    //bw.WriteLine(buf);
-                    //bw.Flush();
-                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o); this crashes for some reason
+                   
                     datatick = lasttick;
                 }
                 catch (EndOfStreamException)

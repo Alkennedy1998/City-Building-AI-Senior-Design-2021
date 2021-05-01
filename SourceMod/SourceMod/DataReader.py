@@ -43,7 +43,7 @@ pmd = {}
 
 outqueue = [];
 
-def dosomething(st):
+def updatepms(st):
     l = st.split(", ")
     print(st)
     print(len(pms))
@@ -54,7 +54,7 @@ def dosomething(st):
     print(pmd)
 
 def iothread(loc):
-    pipealias1 = r'\\.\pipe\NP1'
+    pipealias1 = r'\\.\pipe\NP2'
 
     bufsize = 1024*64
 
@@ -76,7 +76,7 @@ def iothread(loc):
                     print(leng)
                     ins = win32file.ReadFile(pipe,leng) #read the C# message
                     print('Read:',ins[1].decode())
-                    dosomething(ins[1].decode())
+                    updatepms(ins[1].decode())
                     st = "error"
                     loc.acquire()
                     if len(outqueue) == 0:

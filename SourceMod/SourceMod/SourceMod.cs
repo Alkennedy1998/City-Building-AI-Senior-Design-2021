@@ -400,7 +400,8 @@ namespace Tutorial
             else if (test_action_parsing)
             {
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "conducting parsing test");
-                string test_string = "createbuilding|1|0.0,10.0,100.0|3.14|0";
+                //string test_string = "createbuilding|1|0.0,10.0,100.0|3.14|0";
+                string test_string = "createzone|0,0,0|4|10";
                 action_parser ap = new action_parser();
                 ap.parse_actions(test_string);
             }
@@ -1121,7 +1122,8 @@ namespace Tutorial
             switch (tokens[0])
             {
                 case "createbuilding":
-                    //example: "createbuilding | 12 | 34.5, 6.78, 91.0 | 1.2 | 34"
+                    //example: "createbuilding|12|34.5, 6.78, 91.0|1.2|34"
+                    //example: "createbuilding|prefab index|position|rotation(radians)|length(usually 0)"
                     if (debug)
                         DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "createbuilding found with parameters( " + tokens[1] + " | " + tokens[2] + " | " + tokens[3] + " | " + tokens[4] + " )");
 
@@ -1146,7 +1148,8 @@ namespace Tutorial
                     CreateBuilding(out var building2, ref Singleton<SimulationManager>.instance.m_randomizer, building_prefab, building_position, building_angle, building_length);
                     break;
                 case "createzone":
-                    //example: "createzone | 1.2, 3.4, 5.6 | 4 | 30"
+                    //example: "createzone|1.2, 3.4, 5.6|4|30"
+                    //example: "createzone|position vector|zone type|quantity"
                     if (debug)
                     {
                         DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "createzone found with parameters( " + tokens[1] + " | " + tokens[2] + " | " + tokens[3] + " )");

@@ -963,9 +963,9 @@ namespace Tutorial
 
             performance_measures pm = new performance_measures();
 
-            
 
-            while (true)
+            bool notexiting = true;
+            while (notexiting)
             {
                 while (datatick == lasttick) ;
                 try
@@ -1003,6 +1003,16 @@ namespace Tutorial
                     String op = "read: " + st;
                     DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, op);
 
+                    if(st.Contains("reset"))
+                    {
+                        //op = "reseettttttingg";
+                        //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, op);
+                        client.Close();
+                        client.Dispose();
+                        notexiting = false;
+                        reset();
+                    }
+
                     //string o = pm.performance_measures_cs();
 
                     //bw.Write((uint)buf.Length);
@@ -1018,8 +1028,14 @@ namespace Tutorial
                 }
             }
             Console.WriteLine("Client disconnected");
-            client.Close();
-            client.Dispose();
+            //client.Close();
+            //client.Dispose();
+        }
+
+        void reset()
+        {
+            LoadPanel p = Singleton<LoadPanel>.instance;
+            p.QuickLoad();
         }
     }
 

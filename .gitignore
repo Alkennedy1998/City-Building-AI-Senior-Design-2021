@@ -7,3 +7,6 @@
 *.ide
 *.ide-wal
 *.suo
+**/obj/
+**/Properties/
+**/.vs/

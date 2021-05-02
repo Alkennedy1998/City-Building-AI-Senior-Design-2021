@@ -295,8 +295,9 @@ namespace Tutorial
         };
 
         bool test_building = false;
-        bool test_action_parsing = true;
+        bool test_action_parsing = false;
         bool print_delta = false;
+        bool print_mouse = false;
 
         void Start()
         {
@@ -317,6 +318,10 @@ namespace Tutorial
                 if (print_delta)
                 {
                     DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, delta.ToString());
+                }
+                if(print_mouse)
+                {
+                    MouseTools.OutputMousePos();
                 }
                 milliseconds = newmilliseconds;
                 datatick += 1;
@@ -406,9 +411,9 @@ namespace Tutorial
             {
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "conducting parsing test");
                 string test_string = "createbuilding|1|0.0,10.0,100.0|3.14|0";
-                //string test_string = "createzone|0,0,0|4|10";
+                string test_string2 = "createzone|722.0,3.4,98.0|4|30";
                 action_parser ap = new action_parser();
-                ap.parse_actions(test_string);
+                ap.parse_actions(test_string2);
             }
         }
 
@@ -973,20 +978,18 @@ namespace Tutorial
 
 
             long lasttick = datatick;
-            // var server = new NamedPipeServerStream("NP");
             NamedPipeClientStream client = new NamedPipeClientStream("NP1");
-            //server.WaitForConnection();
-            client.Connect();
-            //var br = new BinaryReader(server);
-            //var bw = new BinaryWriter(server);
-            //StreamReader br = new StreamReader(client);
-            //StreamWriter bw = new StreamWriter(client);
-
-            
-
+            try
+            {
+                client.Connect(10000);
+            }
+            catch(System.TimeoutException ex)
+            {
+                client = new NamedPipeClientStream("NP2");
+                client.Connect();
+            }
             performance_measures pm = new performance_measures();
-
-
+            action_parser ap = new action_parser();
             bool notexiting = true;
             while (notexiting)
             {
@@ -996,53 +999,33 @@ namespace Tutorial
                     
                     pm.get_performance_measures();
 
-                    //string o = "test c# message";
                     string o = pm.performance_measures_cs();
                     var buf = Encoding.ASCII.GetBytes(o);
                     client.Write(BitConverter.GetBytes(buf.Length), 0, 4);
                     client.Write(buf, 0, buf.Length);
 
-                    //var le = (int)br.ReadUInt32();
-                    //var st = new string(br.ReadChars(le));
                     byte[] leng = new byte[4];
-                    //var le = client.ReadByte();
+
                     client.Read(leng, 0, 4);
-                    //if (BitConverter.IsLittleEndian)
-                    //    Array.Reverse(leng);
+
                     int len = BitConverter.ToInt32(leng,0);
-                    //String otp = "" + len + ", " + leng[0] + ", " + leng[1] + ", " + leng[2] + ", " + leng[3]; 
-                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, otp);
-
-
 
                     byte[] inbuffer = new byte[1024];
                     client.Read(inbuffer, 0, len);
                     String st = System.Text.Encoding.ASCII.GetString(inbuffer);
-                    //for(int it = 0; it < st.Length; it++)
-                    //{
-                    //    String optt = it + ": " + st[it];
-                    //    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, optt);
-                    //}
-                    String op = "read: " + st;
-                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, op);
 
-                    if(st.Contains("reset"))
+                    //String op = "read: " + st;
+                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, op);
+                    ap.parse_actions(st);
+                    if (st.Contains("reset"))
                     {
-                        //op = "reseettttttingg";
-                        //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, op);
                         client.Close();
                         client.Dispose();
                         notexiting = false;
                         reset();
                     }
 
-                    //string o = pm.performance_measures_cs();
-
-                    //bw.Write((uint)buf.Length);
-                    //bw.Write(buf);
-                    //bw.WriteLine(buf);
-                    //bw.Flush();
-                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o); this crashes for some reason
+                   
                     datatick = lasttick;
                 }
                 catch (EndOfStreamException)
@@ -1066,7 +1049,7 @@ namespace Tutorial
     {
         public char token_delimiter = '|';
         public char vector_delimiter = ',';
-        public bool debug = true;
+        public bool debug = false;
 
         public void parse_actions(string input_string) // run functions based on provided input string
         {
@@ -1121,6 +1104,7 @@ namespace Tutorial
             {
                 EltList.Add(input_string.Substring(elt_start_index));
             }
+
             new_vector.x = float.Parse(EltList[0]);
             new_vector.y = float.Parse(EltList[1]);
             new_vector.z = float.Parse(EltList[2]);
@@ -1130,7 +1114,6 @@ namespace Tutorial
             }
             return new_vector;
         }
-
         public void run_tokens(List<string> tokens) // run function based on provided token array
         {
             if (debug)
@@ -1144,8 +1127,7 @@ namespace Tutorial
             switch (tokens[0])
             {
                 case "createbuilding":
-                    //example: "createbuilding|12|34.5, 6.78, 91.0|1.2|34"
-                    //example: "createbuilding|prefab index|position|rotation(radians)|length(usually 0)"
+                    //example: "createbuilding | 12 | 34.5, 6.78, 91.0 | 1.2 | 34"
                     if (debug)
                         DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "createbuilding found with parameters( " + tokens[1] + " | " + tokens[2] + " | " + tokens[3] + " | " + tokens[4] + " )");
 
@@ -1170,8 +1152,7 @@ namespace Tutorial
                     CreateBuilding(out var building2, ref Singleton<SimulationManager>.instance.m_randomizer, building_prefab, building_position, building_angle, building_length);
                     break;
                 case "createzone":
-                    //example: "createzone|1.2, 3.4, 5.6|4|30"
-                    //example: "createzone|position vector|zone type|quantity"
+                    //example: "createzone | 1.2, 3.4, 5.6 | 4 | 30"
                     if (debug)
                     {
                         DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "createzone found with parameters( " + tokens[1] + " | " + tokens[2] + " | " + tokens[3] + " )");
@@ -1188,7 +1169,7 @@ namespace Tutorial
                         DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "parsing quantity of " + tokens[3]);
                     int quantity = int.Parse(tokens[3]);
 
-                    ZoneArea(zone_position, (ItemClass.Zone)type, quantity);
+                    ZoneArea(zone_position, int_to_zone(type), quantity);
                     break;
                 default:
                     if (debug)
@@ -1197,6 +1178,38 @@ namespace Tutorial
                     }
                     break;
             }
+        }
+
+        public ItemClass.Zone int_to_zone(int inp)
+        {
+            //unzoned = 0
+            //distant = 1
+            //res low = 2
+            //res high = 3 
+            //com low = 4
+            //com high = 5
+            //industrial = 6
+            //office = 7
+            switch (inp)
+            {
+                case 0:
+                    return ItemClass.Zone.Unzoned;
+                case 1:
+                    return ItemClass.Zone.Distant;
+                case 2:
+                    return ItemClass.Zone.ResidentialLow;
+                case 3:
+                    return ItemClass.Zone.ResidentialHigh;
+                case 4:
+                    return ItemClass.Zone.CommercialLow;
+                case 5:
+                    return ItemClass.Zone.CommercialHigh;
+                case 6:
+                    return ItemClass.Zone.Industrial;
+                case 7:
+                    return ItemClass.Zone.Office;
+            }
+            return ItemClass.Zone.ResidentialLow;
         }
 
         public void print_tokens_to_console(List<string> tokens)

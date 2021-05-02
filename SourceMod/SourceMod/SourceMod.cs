@@ -472,7 +472,7 @@ namespace Tutorial
 
             Vector3 pos5;
             Vector3 dir;
-            bool outbool = BuildingTool.SnapToPath(position, out pos5, out dir, 200f, roadOnly: true);
+            bool outbool = BuildingTool.SnapToPath(position, out pos5, out dir, 40f, roadOnly: true);
             if (!outbool)
             {
                 o = ("it returned false");

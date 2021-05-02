@@ -1060,7 +1060,7 @@ namespace Tutorial
     class action_parser : dataReader
     {
         public char token_delimiter = '|';
-        public string vector_delimiter = ", ";
+        public char vector_delimiter = ',';
         public bool debug = true;
 
         public void parse_actions(string input_string) // run functions based on provided input string
@@ -1102,10 +1102,27 @@ namespace Tutorial
             new_vector.x = 0;
             new_vector.y = 0;
             new_vector.z = 0;
+            List<string> EltList = new List<string>();
+            int elt_start_index = 0;
+            for (int counter = 0; counter < input_string.Length; counter++)
+            {
+                if (input_string[counter] == vector_delimiter)
+                {
+                    EltList.Add(input_string.Substring(elt_start_index, counter - elt_start_index));
+                    elt_start_index = counter + 1;
+                }
+            }
+            if (input_string[input_string.Length - 1] != vector_delimiter)
+            {
+                EltList.Add(input_string.Substring(elt_start_index));
+            }
             if (debug)
             {
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "converting string ( " + input_string + " ) to vector ( " + new_vector.x.ToString() + ", " + new_vector.y.ToString() + ", " + new_vector.z.ToString() + " )");
             }
+            new_vector.x = float.Parse(EltList[0]);
+            new_vector.y = float.Parse(EltList[1]);
+            new_vector.z = float.Parse(EltList[2]);
             return new_vector;
         }
 

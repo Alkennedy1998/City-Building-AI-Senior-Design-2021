@@ -290,8 +290,9 @@ namespace Tutorial
         };
 
         bool test_building = false;
-        bool test_action_parsing = true;
+        bool test_action_parsing = false;
         bool print_delta = false;
+        bool print_mouse = false;
 
         void Start()
         {
@@ -312,6 +313,10 @@ namespace Tutorial
                 if (print_delta)
                 {
                     DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, delta.ToString());
+                }
+                if(print_mouse)
+                {
+                    MouseTools.OutputMousePos();
                 }
                 milliseconds = newmilliseconds;
                 datatick += 1;
@@ -401,8 +406,9 @@ namespace Tutorial
             {
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "conducting parsing test");
                 string test_string = "createbuilding|1|0.0,10.0,100.0|3.14|0";
+                string test_string2 = "createzone|722.0,3.4,98.0|4|30";
                 action_parser ap = new action_parser();
-                ap.parse_actions(test_string);
+                ap.parse_actions(test_string2);
             }
         }
 
@@ -977,7 +983,8 @@ namespace Tutorial
                 client = new NamedPipeClientStream("NP2");
                 client.Connect();
             }
-                performance_measures pm = new performance_measures();
+            performance_measures pm = new performance_measures();
+            action_parser ap = new action_parser();
             bool notexiting = true;
             while (notexiting)
             {
@@ -1002,10 +1009,10 @@ namespace Tutorial
                     client.Read(inbuffer, 0, len);
                     String st = System.Text.Encoding.ASCII.GetString(inbuffer);
 
-                    String op = "read: " + st;
-                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, op);
-
-                    if(st.Contains("reset"))
+                    //String op = "read: " + st;
+                    //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, op);
+                    ap.parse_actions(st);
+                    if (st.Contains("reset"))
                     {
                         client.Close();
                         client.Dispose();
@@ -1036,8 +1043,8 @@ namespace Tutorial
     class action_parser : dataReader
     {
         public char token_delimiter = '|';
-        public string vector_delimiter = ", ";
-        public bool debug = true;
+        public char vector_delimiter = ',';
+        public bool debug = false;
 
         public void parse_actions(string input_string) // run functions based on provided input string
         {
@@ -1078,13 +1085,30 @@ namespace Tutorial
             new_vector.x = 0;
             new_vector.y = 0;
             new_vector.z = 0;
+            List<string> EltList = new List<string>();
+            int elt_start_index = 0;
+            for (int counter = 0; counter < input_string.Length; counter++)
+            {
+                if (input_string[counter] == vector_delimiter)
+                {
+                    EltList.Add(input_string.Substring(elt_start_index, counter - elt_start_index));
+                    elt_start_index = counter + 1;
+                }
+            }
+            if (input_string[input_string.Length - 1] != vector_delimiter)
+            {
+                EltList.Add(input_string.Substring(elt_start_index));
+            }
+
+            new_vector.x = float.Parse(EltList[0]);
+            new_vector.y = float.Parse(EltList[1]);
+            new_vector.z = float.Parse(EltList[2]);
             if (debug)
             {
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "converting string ( " + input_string + " ) to vector ( " + new_vector.x.ToString() + ", " + new_vector.y.ToString() + ", " + new_vector.z.ToString() + " )");
             }
             return new_vector;
         }
-
         public void run_tokens(List<string> tokens) // run function based on provided token array
         {
             if (debug)
@@ -1140,7 +1164,7 @@ namespace Tutorial
                         DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "parsing quantity of " + tokens[3]);
                     int quantity = int.Parse(tokens[3]);
 
-                    ZoneArea(zone_position, (ItemClass.Zone)type, quantity);
+                    ZoneArea(zone_position, int_to_zone(type), quantity);
                     break;
                 default:
                     if (debug)
@@ -1149,6 +1173,38 @@ namespace Tutorial
                     }
                     break;
             }
+        }
+
+        public ItemClass.Zone int_to_zone(int inp)
+        {
+            //unzoned = 0
+            //distant = 1
+            //res low = 2
+            //res high = 3 
+            //com low = 4
+            //com high = 5
+            //industrial = 6
+            //office = 7
+            switch (inp)
+            {
+                case 0:
+                    return ItemClass.Zone.Unzoned;
+                case 1:
+                    return ItemClass.Zone.Distant;
+                case 2:
+                    return ItemClass.Zone.ResidentialLow;
+                case 3:
+                    return ItemClass.Zone.ResidentialHigh;
+                case 4:
+                    return ItemClass.Zone.CommercialLow;
+                case 5:
+                    return ItemClass.Zone.CommercialHigh;
+                case 6:
+                    return ItemClass.Zone.Industrial;
+                case 7:
+                    return ItemClass.Zone.Office;
+            }
+            return ItemClass.Zone.ResidentialLow;
         }
 
         public void print_tokens_to_console(List<string> tokens)

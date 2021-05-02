@@ -289,6 +289,9 @@ namespace Tutorial
             "University"
         };
 
+        bool test_building = false;
+        bool test_action_parsing = true;
+        bool print_delta = false;
 
         void Start()
         {
@@ -306,8 +309,10 @@ namespace Tutorial
             long delta = newmilliseconds - milliseconds;
             if (delta >= msperticks)
             {
-                String o = delta.ToString();
-                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                if (print_delta)
+                {
+                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, delta.ToString());
+                }
                 milliseconds = newmilliseconds;
                 datatick += 1;
             }
@@ -323,71 +328,82 @@ namespace Tutorial
         }
         void testfunction()
         {
-            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "update check");
-            Vector3 loc2 = new Vector3(50, 50, 0);
-            Vector3 loc3 = new Vector3(-50, -50, 0);
-            string building = "cemetery";
-            int max = 638;
-            //0 = Medical Clinic
-            //1 = Hosptial
-            //2 = Medical Center
-            //3 = Crematory
-            //4 = Cemetary
-            //5 = Eldercare 01
-            //6 = Child Health Center 01
-            //7 H3 4x3 Shop03
-            //8 H1 1x1 Shop07
-            //9 H13 3x4 Shop04
+            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "in test_function()");
+            if (test_building)
+            {
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "update check");
+                Vector3 loc2 = new Vector3(50, 50, 0);
+                Vector3 loc3 = new Vector3(-50, -50, 0);
+                string building = "cemetery";
+                int max = 638;
+                //0 = Medical Clinic
+                //1 = Hosptial
+                //2 = Medical Center
+                //3 = Crematory
+                //4 = Cemetary
+                //5 = Eldercare 01
+                //6 = Child Health Center 01
+                //7 H3 4x3 Shop03
+                //8 H1 1x1 Shop07
+                //9 H13 3x4 Shop04
 
-            BuildingManager buildingManager = Singleton<BuildingManager>.instance;
-            Vector3 loc1 = new Vector3(0, 0, 0);
-            Vector3 loc4 = new Vector3(100, 0, 0);
-            Vector3 loc5 = new Vector3(50, 0, 0);
-
-
-            float angle = 0;
-            int length = 0;
-
-            BuildingInfo prefab = PrefabCollection<BuildingInfo>.GetPrefab((uint)1);
-            int givemoney = -35000000;
-            Singleton<EconomyManager>.instance.FetchResource(EconomyManager.Resource.Construction, givemoney, prefab.m_class);
-            long before = Singleton<EconomyManager>.instance.InternalCashAmount;
-            String o = ("money before: " + before);
-            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
-            //CreateBuilding(out var building2, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc4, angle, length);
-            //CreateBuilding(out var building3, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc4, angle, length);
-            //CreateBuilding(out var building4, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc5, angle, length);
-            //GetWaterSources();
-
-            Vector3 v = new Vector3(0, 0, 8);
-            Vector3 v2 = new Vector3(1, 0, 24);
-            Vector3 v3 = new Vector3(2, 0, 40);
-            Vector3 v4 = new Vector3(3, 0, -8);
-            Vector3 v5 = new Vector3(4, 0, -24);
-            Vector3 v6 = new Vector3(5, 0, -40);
-            Vector3 v7 = new Vector3(6, 0, -56);
-            Vector3 v8 = new Vector3(7, 0, -72);
-            Vector3 v9 = new Vector3(8, 0, -150);
-
-            //Ray m_mouseRay = Camera.main.ScreenPointToRay(mousePosition);
+                BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+                Vector3 loc1 = new Vector3(0, 0, 0);
+                Vector3 loc4 = new Vector3(100, 0, 0);
+                Vector3 loc5 = new Vector3(50, 0, 0);
 
 
-            float distsq = 1000;
-            ushort block = 0;
-            //Singleton<NetManager>.instance.m_segments.m_buffer[m_closeSegGetClosestZoneBlock(v, ref distsq, ref block);
-            int a = Singleton<NetManager>.instance.m_segments.m_buffer.Length;
-            //Singleton<NetManager>.instance.GetClosestSegments(v, m_closeSegments, out m_closeSegmentCount);
-            //o = ("segment count: " + a);
-            //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                float angle = 0;
+                int length = 0;
 
-            int newzones = ZoneArea(v, ItemClass.Zone.CommercialLow, 10);
-            newzones = ZoneArea(v9, ItemClass.Zone.CommercialLow, 30);
-            newzones = ZoneArea(v, ItemClass.Zone.ResidentialLow, 20);
+                BuildingInfo prefab = PrefabCollection<BuildingInfo>.GetPrefab((uint)1);
+                int givemoney = -35000000;
+                Singleton<EconomyManager>.instance.FetchResource(EconomyManager.Resource.Construction, givemoney, prefab.m_class);
+                long before = Singleton<EconomyManager>.instance.InternalCashAmount;
+                String o = ("money before: " + before);
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                //CreateBuilding(out var building2, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc4, angle, length);
+                //CreateBuilding(out var building3, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc4, angle, length);
+                //CreateBuilding(out var building4, ref Singleton<SimulationManager>.instance.m_randomizer, prefab, loc5, angle, length);
+                //GetWaterSources();
 
-            o = ("painted zones: " + newzones);
-            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                Vector3 v = new Vector3(0, 0, 8);
+                Vector3 v2 = new Vector3(1, 0, 24);
+                Vector3 v3 = new Vector3(2, 0, 40);
+                Vector3 v4 = new Vector3(3, 0, -8);
+                Vector3 v5 = new Vector3(4, 0, -24);
+                Vector3 v6 = new Vector3(5, 0, -40);
+                Vector3 v7 = new Vector3(6, 0, -56);
+                Vector3 v8 = new Vector3(7, 0, -72);
+                Vector3 v9 = new Vector3(8, 0, -150);
 
-            //RoadAI rai = Singleton<RoadAI>.instance;
+                //Ray m_mouseRay = Camera.main.ScreenPointToRay(mousePosition);
+
+
+                float distsq = 1000;
+                ushort block = 0;
+                //Singleton<NetManager>.instance.m_segments.m_buffer[m_closeSegGetClosestZoneBlock(v, ref distsq, ref block);
+                int a = Singleton<NetManager>.instance.m_segments.m_buffer.Length;
+                //Singleton<NetManager>.instance.GetClosestSegments(v, m_closeSegments, out m_closeSegmentCount);
+                //o = ("segment count: " + a);
+                //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+
+                int newzones = ZoneArea(v, ItemClass.Zone.CommercialLow, 10);
+                newzones = ZoneArea(v9, ItemClass.Zone.CommercialLow, 30);
+                newzones = ZoneArea(v, ItemClass.Zone.ResidentialLow, 20);
+
+                o = ("painted zones: " + newzones);
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+
+                //RoadAI rai = Singleton<RoadAI>.instance;
+            }
+            else if (test_action_parsing)
+            {
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "conducting parsing test");
+                string test_string = "createbuilding|1|0.0,10.0,100.0|3.14|0";
+                action_parser ap = new action_parser();
+                ap.parse_actions(test_string);
+            }
         }
 
         public bool CreateBuilding(out ushort building, ref Randomizer randomizer, uint prefabID, Vector3 position, float angle, int length)
@@ -397,6 +413,7 @@ namespace Tutorial
             building = building2;
             return f;
         }
+
         public bool CreateBuilding(out ushort building, ref Randomizer randomizer, BuildingInfo info, Vector3 position, float angle, int length)
         {
             int constructionCost = info.GetConstructionCost();
@@ -551,7 +568,7 @@ namespace Tutorial
             }
         }
 
-        private int ZoneArea(Vector3 inposition, ItemClass.Zone m_zone, int quantity)
+        public int ZoneArea(Vector3 inposition, ItemClass.Zone m_zone, int quantity)
         {
             if (quantity < 1) return 0;
 
@@ -1016,4 +1033,132 @@ namespace Tutorial
         }
     }
 
+    class action_parser : dataReader
+    {
+        public char token_delimiter = '|';
+        public string vector_delimiter = ", ";
+        public bool debug = true;
+
+        public void parse_actions(string input_string) // run functions based on provided input string
+        {
+            List<string> tokens = split_string_to_tokens(input_string, token_delimiter);
+            run_tokens(tokens);
+        }
+
+        public List<string> split_string_to_tokens(string input_string, char delimiter)
+        {
+            List<string> tokenList = new List<string>();
+            int token_start_index = 0;
+            for (int counter = 0; counter < input_string.Length; counter++)
+            {
+                if (input_string[counter] == delimiter)
+                {
+                    if (debug)
+                        DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "found token between " + token_start_index.ToString() + " and " + counter.ToString());
+                    tokenList.Add(input_string.Substring(token_start_index, counter - token_start_index));
+                    if (debug)
+                        DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "extracted " + tokenList[tokenList.Count() - 1]);
+                    token_start_index = counter + 1;
+                }
+            }
+            if (input_string[input_string.Length - 1] != delimiter)
+            {
+                if (debug)
+                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "found token after " + token_start_index.ToString());
+                tokenList.Add(input_string.Substring(token_start_index));
+                if (debug)
+                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "extracted " + tokenList[tokenList.Count() - 1]);
+            }
+            return tokenList;
+        }
+
+        Vector3 string_to_vector3(string input_string) // convert string to vector3
+        {
+            Vector3 new_vector;
+            new_vector.x = 0;
+            new_vector.y = 0;
+            new_vector.z = 0;
+            if (debug)
+            {
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "converting string ( " + input_string + " ) to vector ( " + new_vector.x.ToString() + ", " + new_vector.y.ToString() + ", " + new_vector.z.ToString() + " )");
+            }
+            return new_vector;
+        }
+
+        public void run_tokens(List<string> tokens) // run function based on provided token array
+        {
+            if (debug)
+            {
+                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "received " + tokens.Count() + " tokens");
+                for (int token_counter = 0; token_counter < tokens.Count(); token_counter++)
+                {
+                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "token: " + tokens[token_counter]);
+                }
+            }
+            switch (tokens[0])
+            {
+                case "createbuilding":
+                    //example: "createbuilding | 12 | 34.5, 6.78, 91.0 | 1.2 | 34"
+                    if (debug)
+                        DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "createbuilding found with parameters( " + tokens[1] + " | " + tokens[2] + " | " + tokens[3] + " | " + tokens[4] + " )");
+
+                    BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+
+                    if (debug)
+                        DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "parsing prefab of " + tokens[1]);
+                    uint building_prefab = uint.Parse(tokens[1]);
+
+                    if (debug)
+                        DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "parsing position of " + tokens[2]);
+                    Vector3 building_position = string_to_vector3(tokens[2]);
+
+                    if (debug)
+                        DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "parsing angle of " + tokens[3]);
+                    float building_angle = float.Parse(tokens[3]);
+
+                    if (debug)
+                        DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "parsing length of " + tokens[4]);
+                    int building_length = int.Parse(tokens[4]);
+
+                    CreateBuilding(out var building2, ref Singleton<SimulationManager>.instance.m_randomizer, building_prefab, building_position, building_angle, building_length);
+                    break;
+                case "createzone":
+                    //example: "createzone | 1.2, 3.4, 5.6 | 4 | 30"
+                    if (debug)
+                    {
+                        DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "createzone found with parameters( " + tokens[1] + " | " + tokens[2] + " | " + tokens[3] + " )");
+                    }
+                    if (debug)
+                        DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "parsing position of " + tokens[1]);
+                    Vector3 zone_position = string_to_vector3(tokens[1]);
+
+                    if (debug)
+                        DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "parsing type of " + tokens[2]);
+                    int type = int.Parse(tokens[2]);
+
+                    if (debug)
+                        DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "parsing quantity of " + tokens[3]);
+                    int quantity = int.Parse(tokens[3]);
+
+                    ZoneArea(zone_position, (ItemClass.Zone)type, quantity);
+                    break;
+                default:
+                    if (debug)
+                    {
+                        DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "invalid first token ( " + tokens[0] + " )");
+                    }
+                    break;
+            }
+        }
+
+        public void print_tokens_to_console(List<string> tokens)
+        {
+            string message = "";
+            for (int counter = 0; counter < tokens.Count; counter++)
+            {
+                message = message + token_delimiter + tokens[counter];
+            }
+            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, message);
+        }
+    }
 }

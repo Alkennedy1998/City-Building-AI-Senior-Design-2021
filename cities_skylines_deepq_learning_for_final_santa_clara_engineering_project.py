@@ -114,8 +114,7 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
     62*62 = 3844, 3844 - 472, 3136 * 5 = 15680
     """
 
-    self._initial_state = np.zeros((56,56))
-    self._state = self._initial_state
+    self._state = np.zeros((56,56))
     self._game_cycles = 0;
 
     self._action_spec = array_spec.BoundedArraySpec(
@@ -244,8 +243,19 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
     return self._current_time_step
 
   def _reset(self):
-      self._state = self._initial_state
+      self._state = np.zeros((56,56))
       self._episode_ended = False
+      self._reward_value = 0
+      self._population = 0
+      self._pollution = 0
+      self._power = 0
+      self._income = 0
+      self._residential_count = 0
+      self._commercial_count = 0
+      self._coal_plant_count = 0
+      self._wind_plant_count = 0
+      self._hospital_count = 0
+      self._game_cycles = 0
       return ts.restart(np.array(self._state, dtype=np.int32))
 
   def _step(self, action):
@@ -311,7 +321,7 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
       raise ValueError('`action` should be less than the max action value 15680')
 
     reward = self._calculate_reward(self.calculate_adjacency_bonus(x,y))
-    if self._game_cycles >= 1000:
+    if self._game_cycles >= 10:
       return ts.termination(np.array(self._state, dtype=np.int32), reward)
     else:
       return ts.transition(
@@ -332,14 +342,14 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
     calculated_reward += adjacency_bonus
     adjacency_bonus = 0
     
-    calculated_reward += self._population - self._pollution
+    calculated_reward += self._population * 100 - self._pollution
     if self._income < 0:
       calculated_reward -= calculated_reward * 0.75
     else: 
       calculated_reward += self._income / 10
     #Rewards decrease scales with difference between power supply and demand
-    if self._power < power_demand:
-      calculated_reward -= (power_demand - self._power)
+    # if self._power < power_demand:
+    #   calculated_reward -= (power_demand - self._power)
     # (calculated _reward * (power_demand - self._power) / power_demand)
     
     return calculated_reward
@@ -365,10 +375,10 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
       new_y = y + direction[1]
       if new_x > 0 and new_x < 56 and new_y > 0 and new_y <56:
         if self._state[new_x][new_y] == self._state[x][y]:
-          bonus_sum += 150
+          bonus_sum += 15000
     return bonus_sum
 
-  def _showMap(self):
+  def show_map(self):
     map_view_state = [[0 for x in range(62)] for y in range(62)]
     for x in range(62):
       for y in range(62):
@@ -397,6 +407,8 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
     clear_output(wait=True)
   
 
+    if x % 50 == 0:
+      env._showMap()
       
 
 
@@ -407,7 +419,7 @@ tf_env = tf_py_environment.TFPyEnvironment(env)
 train_env = tf_env
 eval_env = tf_env
 
-num_iterations = 400 # @param {type:"integer"}
+num_iterations =  30# @param {type:"integer"}
 
 initial_collect_steps = 100  # @param {type:"integer"} 
 collect_steps_per_iteration = 1  # @param {type:"integer"}
@@ -508,6 +520,9 @@ agent.collect_data_spec._fields
 def collect_step(environment, policy, buffer):
   time_step = environment.current_time_step()
   action_step = policy.action(time_step)
+  action_num = action_step.action.numpy()[0]
+  # print(env.map_action_to_coordinate(action_num - 3136 * 4))
+  # print(floor(action_num/3136))
   next_time_step = environment.step(action_step.action)
   traj = trajectory.from_transition(time_step, action_step, next_time_step)
 
@@ -567,23 +582,11 @@ for x in range(num_iterations):
     avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
     print('step = {0}: Average Return = {1}'.format(step, avg_return))
     returns.append(avg_return)
-    print(eval_env.get_state())
+    # print(eval_env.render())
+    eval_env._env.envs[-1].show_map()
 
 iterations = range(0, num_iterations + 1, eval_interval)
 plt.plot(iterations, returns)
 plt.ylabel('Average Return')
 plt.xlabel('Iterations')
 plt.ylim(top=250)
-
-
-
-
-def updatepms(st):
-    l = st.split(", ")
-    print(st)
-    print(len(pms))
-    print(len(l))
-    for i in range (len(pms)):
-        pms[i] = l[i]
-        pmd[pmids[i]] = pms[i]
-    print(pmd)

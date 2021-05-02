@@ -82,6 +82,7 @@ namespace Tutorial
 
         // economy
         public int unemployment = 0;
+        public int income_accumulation = 0;
 
         // society
         public int criminal_amount = 0;
@@ -119,6 +120,7 @@ namespace Tutorial
         {
             var _districtManager = Singleton<DistrictManager>.instance;
             var _zoneManager = Singleton<ZoneManager>.instance;
+            var _economyManager = Singleton<EconomyManager>.instance;
 
             // health
             population = _districtManager.m_districts.m_buffer[0].m_populationData.m_finalCount;
@@ -134,6 +136,7 @@ namespace Tutorial
 
             // economy
             unemployment = _districtManager.m_districts.m_buffer[0].GetUnemployment();
+            income_accumulation = _districtManager.m_districts.m_buffer[0].GetIncomeAccumulation();
 
             // society
             criminal_amount = _districtManager.m_districts.m_buffer[0].GetCriminalAmount();
@@ -178,6 +181,7 @@ namespace Tutorial
                     "\ngarbage amount = " + garbage.ToString() +
                     "\nECONOMY" +
                     "\nunemployment = " + unemployment.ToString() +
+                    "\nincome accumulation = " + income_accumulation.ToString() +
                     "\nSOCIETY" +
                     "\ncriminal amount = " + criminal_amount.ToString() +
                     "\nextra criminals = " + extra_criminals.ToString() +
@@ -216,6 +220,7 @@ namespace Tutorial
                     ", " + water_consumption.ToString() +
                     ", " + garbage.ToString() +
                     ", " + unemployment.ToString() +
+                    ", " + income_accumulation.ToString() + 
                     ", " + criminal_amount.ToString() +
                     ", " + extra_criminals.ToString() +
                     ", " + education_1_capacity.ToString() +

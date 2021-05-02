@@ -400,8 +400,8 @@ namespace Tutorial
             else if (test_action_parsing)
             {
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "conducting parsing test");
-                //string test_string = "createbuilding|1|0.0,10.0,100.0|3.14|0";
-                string test_string = "createzone|0,0,0|4|10";
+                string test_string = "createbuilding|1|0.0,10.0,100.0|3.14|0";
+                //string test_string = "createzone|0,0,0|4|10";
                 action_parser ap = new action_parser();
                 ap.parse_actions(test_string);
             }
@@ -1116,13 +1116,13 @@ namespace Tutorial
             {
                 EltList.Add(input_string.Substring(elt_start_index));
             }
+            new_vector.x = float.Parse(EltList[0]);
+            new_vector.y = float.Parse(EltList[1]);
+            new_vector.z = float.Parse(EltList[2]);
             if (debug)
             {
                 DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, "converting string ( " + input_string + " ) to vector ( " + new_vector.x.ToString() + ", " + new_vector.y.ToString() + ", " + new_vector.z.ToString() + " )");
             }
-            new_vector.x = float.Parse(EltList[0]);
-            new_vector.y = float.Parse(EltList[1]);
-            new_vector.z = float.Parse(EltList[2]);
             return new_vector;
         }
 

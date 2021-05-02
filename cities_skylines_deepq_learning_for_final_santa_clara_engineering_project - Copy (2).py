@@ -243,7 +243,6 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
                         outqueue.remove(outqueue[0])
                     loc.release()
                     send = struct.pack('I', len(st)) + st.encode()
-                    print(str(send))
                     win32file.WriteFile(pipe, send)
                     #print('wrote: ', send)
                     inw = win32file.ReadFile(pipe, 4) #the pipe will read its own messages
@@ -285,15 +284,9 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
     #Add a while guard to pause the program 
 
     self._game_cycles += 1
-    time.sleep(1)
-    print("action")
+
     if action/3136 < 1:
       # Residential zone
-      x,y = self.map_action_to_coordinate(action)
-      coords = self.convertcoords(x, y)
-      send = "createzone|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) +"|2|1"
-      outqueue.append(send)
-      print("send:"+send)
       self._population += 4
       self._pollution += 1
       self._residential_count += 1
@@ -301,34 +294,29 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
       #About $7 per indivudal zone square, roughly 
       self._income += 7
 
-
+      x,y = self.map_action_to_coordinate(action)
       self._state[x][y] = 2
       #print("Residential Zone Built at " + str(x) + "," + str(y))
 
     elif action/3136 < 2:
       # Commercial Zone
-      action = action - 3136
-      x,y = self.map_action_to_coordinate(action)
-      coords = self.convertcoords(x, y)
-      send = "createzone|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) +"|4|1"
-      outqueue.append(send)
-      print("send:"+send)
       self._income += 0.1*self._population
       self._pollution += 5
       self._commercial_count += 1  
 
+      action = action - 3136
+      x,y = self.map_action_to_coordinate(action)
       self._state[x][y] = 3
       #print("Commercial Zone Built at " + str(x) + "," + str(y))
     elif action/3136 < 3:
       # Coal Power Plant
       #Placing one square at a time but in game takes up 30 squares, so should divide by 30... will do later once get loss function wokring 
-      # 578
-      action = action - 3136 * 2
-      x,y = self.map_action_to_coordinate(action)
-      coords = self.convertcoords(x, y)
-      send = "createbuilding|578|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) + "|0|0"
-      outqueue.append(send)
+      
+      #578
 
+      coords = self.convertcoords(x, y)
+      send = "createbuilding | 578 | " + str(coords[0]) + ", " + str(coords[1]) + ", " + str(coords[2]) + " | 0 | 0"
+      outqueue.append(send)
       #print(send)
       #time.sleep(5)
       self._power += 40
@@ -336,37 +324,38 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
       self._pollution += 50
       self._coal_plant_count += 1
 
+      action = action - 3136 * 2
+      x,y = self.map_action_to_coordinate(action)
       self._state[x][y] = 4
       #print("Coal Plant Built at " + str(x) + "," + str(y))
     elif action/3136 < 4:
       # Wind Power Plant
       # 573
-      action = action - 3136* 3
-      x,y = self.map_action_to_coordinate(action)
       coords = self.convertcoords(x, y)
-      send = "createbuilding|573|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) + "|0|0"
+      send = "createbuilding | 573 | " + str(coords[0]) + ", " + str(coords[1]) + ", " + str(coords[2]) + " | 0 | 0"
       outqueue.append(send)
 
       self._power += 30
       self._income -= 300
       self._wind_plant_count += 1
 
+      action = action - 3136* 3
+      x,y = self.map_action_to_coordinate(action)
       self._state[x][y] = 5
       #print("Wind Plant Built at " + str(x) + "," + str(y))
     elif action/3136 < 5:
       # Hospital
       # 1
-      action = action - 3136 * 4
-      x,y = self.map_action_to_coordinate(action)
       coords = self.convertcoords(x, y)
-      send = "createbuilding|1|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) + "|0|0"
+      send = "createbuilding | 1 | " + str(coords[0]) + ", " + str(coords[1]) + ", " + str(coords[2]) + " | 0 | 0"
       outqueue.append(send)
-
       
       # self._population += floor(self._population * 0.15)
       # self._income -= 2000
       self._hospital_count += 1
 
+      action = action - 3136 * 4
+      x,y = self.map_action_to_coordinate(action)
       self._state[x][y] = 6
     else:
       raise ValueError('`action` should be less than the max action value 15680')
@@ -478,10 +467,10 @@ replay_buffer_max_length = 100000  # @param {type:"integer"}
 
 batch_size = 64  # @param {type:"integer"}
 learning_rate = 1e-3  # @param {type:"number"}
-log_interval = 5  # @param {type:"integer"}
+log_interval = 40  # @param {type:"integer"}
 
 num_eval_episodes = 10  # @param {type:"integer"}
-eval_interval = 5  # @param {type:"integer"}
+eval_interval = 40  # @param {type:"integer"}
 
 # Consider layers that go big -> small -> big, e.g.
 fc_layer_params = (1024, 256, 64, 256, 1024)
@@ -536,9 +525,8 @@ eval_policy = agent.policy
 collect_policy = agent.collect_policy
 random_policy = random_tf_policy.RandomTFPolicy(train_env.time_step_spec(),
                                                 train_env.action_spec())
-#example_environment = tf_py_environment.TFPyEnvironment(CitiesSkylinesEnvironment)
-#time_step = example_environment.reset()
-time_step = tf_env.reset()
+example_environment = tf_py_environment.TFPyEnvironment(CitiesSkylinesEnvironment)
+time_step = example_environment.reset()
 random_policy.action(time_step)
 
 def compute_avg_return(environment, policy, num_episodes=10):

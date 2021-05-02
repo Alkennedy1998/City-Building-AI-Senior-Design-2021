@@ -324,7 +324,8 @@ namespace Tutorial
 
             if (i == 0)
             {
-                testfunction();
+                GetMoney(1000000000);
+                //testfunction();
             }
             i++;
 
@@ -412,8 +413,17 @@ namespace Tutorial
             }
         }
 
+        public void GetMoney(int money)
+        {
+            BuildingInfo prefab = PrefabCollection<BuildingInfo>.GetPrefab((uint)1);
+            int givemoney = 0 - money;
+            Singleton<EconomyManager>.instance.FetchResource(EconomyManager.Resource.Construction, givemoney, prefab.m_class);
+        }
+
         public bool CreateBuilding(out ushort building, ref Randomizer randomizer, uint prefabID, Vector3 position, float angle, int length)
         {
+            String o = ("prefabid: " + prefabID + " pos: " + position + " angle: " + angle + " length: " + length);
+            // DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
             BuildingInfo prefab = PrefabCollection<BuildingInfo>.GetPrefab(prefabID);
             bool f = CreateBuilding(out var building2, ref randomizer, prefab, position, angle, length);
             building = building2;
@@ -424,7 +434,7 @@ namespace Tutorial
         {
             int constructionCost = info.GetConstructionCost();
             String o = ("cost: " + constructionCost);
-            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+            //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
             if (Singleton<EconomyManager>.instance.PeekResource(EconomyManager.Resource.Construction, constructionCost) != constructionCost)
             {
                 o = ("not enough money");
@@ -437,13 +447,14 @@ namespace Tutorial
             Singleton<EconomyManager>.instance.FetchResource(EconomyManager.Resource.Construction, constructionCost, info.m_class);
             long after = Singleton<EconomyManager>.instance.InternalCashAmount;
             o = ("money after: " + after);
-            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+            //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
 
             ClearColliding();
             BeginColliding(out var collidingSegments, out var collidingBuildings);
 
             ToolBase.ToolErrors toolErrors;
-
+            o = ("mid coliding");
+            //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
             int relocating = 0;
             Vector3 position1 = position;
             float minY = 0;
@@ -453,10 +464,11 @@ namespace Tutorial
 
             EndColliding();
 
-
+            o = ("after coliding");
+            //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
 
             o = ("errors:" + toolErrors.ToString());
-            DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+            //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
 
             Vector3 pos5;
             Vector3 dir;
@@ -464,7 +476,7 @@ namespace Tutorial
             if (!outbool)
             {
                 o = ("it returned false");
-                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
             }
             if (outbool)
             {
@@ -472,7 +484,7 @@ namespace Tutorial
                 angle = Mathf.Atan2(0f - dir.x, dir.z);
                 Vector3 position2 = pos5 - dir * ((float)info.m_cellLength * 4f);
                 position = position2;
-                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
             }
             if (toolErrors == ToolBase.ToolErrors.None)
             {
@@ -482,7 +494,7 @@ namespace Tutorial
                 buildingManager.CreateBuilding(out var building2, ref Singleton<SimulationManager>.instance.m_randomizer, info, position, angle, length, buildIndex);
                 building = building2;
                 o = ("building building");
-                DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
+                //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, o);
                 return true;
             }
             building = 0;

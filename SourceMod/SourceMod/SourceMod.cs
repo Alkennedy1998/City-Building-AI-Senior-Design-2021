@@ -251,11 +251,13 @@ namespace Tutorial
         private int m_collidingDepth = 0;
 
         private long milliseconds = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
-        private long msperticks = 1000;
+        private long msperticks = 200;
 
         private long datatick = 0;
 
         public float m_brushSize = 200f;
+
+        private bool running = true;
 
         public String[] prefabNames = {
             "Coal Power Plant",
@@ -306,28 +308,31 @@ namespace Tutorial
 
         void Update()
         {
-            long newmilliseconds = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
-            long delta = newmilliseconds - milliseconds;
-            if (delta >= msperticks)
+            if (running)
             {
-                if (print_delta)
+                long newmilliseconds = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+                long delta = newmilliseconds - milliseconds;
+                if (delta >= msperticks)
                 {
-                    DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, delta.ToString());
+                    if (print_delta)
+                    {
+                        DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, delta.ToString());
+                    }
+                    if (print_mouse)
+                    {
+                        MouseTools.OutputMousePos();
+                    }
+                    milliseconds = newmilliseconds;
+                    datatick += 1;
                 }
-                if(print_mouse)
-                {
-                    MouseTools.OutputMousePos();
-                }
-                milliseconds = newmilliseconds;
-                datatick += 1;
-            }
 
-            if (i == 0)
-            {
-                GetMoney(1000000000);
-                //testfunction();
+                if (i == 0)
+                {
+                    GetMoney(1000000000);
+                    //testfunction();
+                }
+                i++;
             }
-            i++;
 
 
 
@@ -472,7 +477,7 @@ namespace Tutorial
 
             Vector3 pos5;
             Vector3 dir;
-            bool outbool = BuildingTool.SnapToPath(position, out pos5, out dir, 40f, roadOnly: true);
+            bool outbool = BuildingTool.SnapToPath(position, out pos5, out dir, 100f, roadOnly: true);
             if (!outbool)
             {
                 o = ("it returned false");
@@ -1026,10 +1031,11 @@ namespace Tutorial
                     ap.parse_actions(st);
                     if (st.Contains("reset"))
                     {
-                        client.Close();
-                        client.Dispose();
-                        notexiting = false;
-                        reset();
+                        //client.Close();
+                        //client.Dispose();
+                        //notexiting = false;
+                        //reset();
+                        //Thread.Sleep(10000);
                     }
 
                    
@@ -1049,6 +1055,7 @@ namespace Tutorial
         {
             LoadPanel p = Singleton<LoadPanel>.instance;
             p.QuickLoad();
+            //running = false;
         }
     }
 

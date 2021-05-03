@@ -482,7 +482,7 @@ namespace Tutorial
 
             Vector3 pos5;
             Vector3 dir;
-            bool outbool = BuildingTool.SnapToPath(position, out pos5, out dir, 100f, roadOnly: true);
+            bool outbool = BuildingTool.SnapToPath(position, out pos5, out dir, 400f, roadOnly: true);
             if (!outbool)
             {
                 o = ("it returned false");
@@ -1003,7 +1003,23 @@ namespace Tutorial
             catch(System.TimeoutException ex)
             {
                 client = new NamedPipeClientStream("NP2");
-                client.Connect();
+                try
+                {
+                    client.Connect(10000);
+                }
+                catch(System.TimeoutException ex2)
+                {
+                    client = new NamedPipeClientStream("NP1");
+                    try
+                    {
+                        client.Connect(10000);
+                    }
+                    catch (System.TimeoutException ex3)
+                    {
+                        client = new NamedPipeClientStream("NP2");
+                        client.Connect();
+                    }
+                }
             }
             performance_measures pm = new performance_measures();
             action_parser ap = new action_parser();
@@ -1036,11 +1052,10 @@ namespace Tutorial
                     ap.parse_actions(st);
                     if (st.Contains("reset"))
                     {
-                        //client.Close();
-                        //client.Dispose();
-                        //notexiting = false;
-                        //reset();
-                        //Thread.Sleep(10000);
+                        client.Close();
+                        client.Dispose();
+                        notexiting = false;
+                        reset();
                     }
 
                    
@@ -1060,6 +1075,7 @@ namespace Tutorial
         {
             LoadPanel p = Singleton<LoadPanel>.instance;
             p.QuickLoad();
+            
             //running = false;
         }
     }

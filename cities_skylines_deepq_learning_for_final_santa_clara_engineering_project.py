@@ -63,15 +63,18 @@ plt.rcParams['figure.figsize'] = [20, 10]
 #total_x = 28
 #total_y = 30  
 
-#map_x = 24
-#map_y = 20
+map_x = 24
+map_y = 20
 
-map_x = 5
-map_y = 6
+#map_x = 5
+#map_y = 6
 possible_actions = 5
 #road_spaces = 136 
 playable_squares = map_x * map_y
 total_actions = playable_squares * possible_actions 
+
+time_between_actions = 7
+time_after_last = 600
 
 pmids = [
     "population", 
@@ -104,11 +107,43 @@ pmids = [
     "actual_workplace_demand"
 ]
 
+w = [
+  1.0,
+  3.0,
+  2.0,
+  1.0,
+  -2.0,
+  1.0,
+  1.0,
+  -1.0,
+  -2.0,
+  -3.0,
+  -3.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  -1.0,
+  -1.0,
+  0.0,
+  0.0,
+  0.0,
+  -4.0,
+  -4.0,
+  -4.0
+]
+
 pms = [0] * len(pmids)
 pmd = {}
 
 outqueue = [];
 
+resetting_allowed = False;
 
 # Game board:
 # 0 = Empty
@@ -226,11 +261,15 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
                         st = outqueue[0]
                         outqueue.remove(outqueue[0])
                     loc.release()
+                    r = False
+                    r = (st == "reset")
                     send = struct.pack('I', len(st)) + st.encode()
                     win32file.WriteFile(pipe, send)
                     #print('wrote: ', send)
                     inw = win32file.ReadFile(pipe, 4) #the pipe will read its own messages
                     inw2 = win32file.ReadFile(pipe, len(st)) # the pipe will read its own messages
+                    #if r:
+                      #break
                     time.sleep(0.2)
             finally:
                 win32file.CloseHandle(pipe)
@@ -285,6 +324,8 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
     return self._current_time_step
 
   def _reset(self):
+      if self.firstreset == False:
+        time.sleep(time_after_last)
       self._state = np.full((map_x,map_y),-1)
       self._episode_ended = False
       self._reward_value = 0
@@ -298,8 +339,17 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
       self._wind_plant_count = 0
       self._hospital_count = 0
       self._game_cycles = 0
-      if self.firstreset == False:
+      self.turbines = 0;
+      self.coal = 0;
+      self.turbines_max = 3;
+      self.coal_max = 3;
+      finalscore = self._calculate_reward2()
+      print("final score before reset: " + str(finalscore))
+      pms = [0] * len(pmids)
+      if self.firstreset == False and resetting_allowed == True:
         outqueue.append("reset")
+        print("appending reset, goodbye..")
+        i = input()
       else:
         self.firstreset = False;
       return ts.restart(np.array(self._state, dtype=np.int32))
@@ -363,25 +413,30 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
 
     coords = self.convertcoords(x, y)
     if action_val == 0:
-      send = "createzone|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) +"|2|1"
+      send = "createzone|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) +"|2|16"
       outqueue.append(send)
     elif action_val == 1:
-      send = "createzone|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) +"|4|1"
+      send = "createzone|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) +"|4|16"
       outqueue.append(send)
-    elif action_val == 2:
-      send = "createbuilding|578|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) + "|0|0"
-      outqueue.append(send)
-    elif action_val == 3:
-      send = "createbuilding|573|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) + "|0|0"
-      outqueue.append(send)
-    elif action_val == 4:
+    elif action_val == 2: #coal
+      if(self.coal <= self.coal_max):
+        send = "createbuilding|578|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) + "|0|0"
+        outqueue.append(send)
+        self.coal += 1
+    elif action_val == 3: #wind
+      if(self.turbines <= self.turbines_max):
+        send = "createbuilding|573|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) + "|0|0"
+        outqueue.append(send)
+        self.turbines += 1
+    elif action_val == 4: #hospital
       send = "createbuilding|1|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) + "|0|0"
       outqueue.append(send)
     
-    
-    reward = self._calculate_reward(self.calculate_adjacency_bonus(x,y))
+    time.sleep(time_between_actions)
+    reward = self._calculate_reward2()
+    print(str(self._game_cycles) + ", " + str(reward))
     if overwrite:
-      reward -= 2000000
+      reward -= 000000
     #sleep(0.1)
     if self._game_cycles >= num_iterations:
       #print(reward)
@@ -400,7 +455,7 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
 
   def _calculate_reward(self,adjacency_bonus):
     
-    calculated_reward = 0
+    calculated_reward = 0.0
     power_demand = self._population * 10
 
     # Adjacency bonuses
@@ -419,8 +474,12 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
     
     return calculated_reward
 
-  def _calculate_reward2(self,adjacency_bonus):
-    calculated_reward = 0
+  def _calculate_reward2(self):
+    calculated_reward = 0.0
+    for el in range(len(pms)):
+      calculated_reward += float(pms[el]) * float(w[el])
+      #print(str(el) + ": " + str(calculated_reward))
+    return calculated_reward
 
   def _printStats(self):
     print("Population: " + str(self._population))
@@ -494,7 +553,7 @@ tf_env = tf_py_environment.TFPyEnvironment(env)
 train_env = tf_env
 eval_env = tf_env
 
-num_iterations =  30# @param {type:"integer"}
+num_iterations =  100# @param {type:"integer"}
 
 #initial_collect_steps = int(num_iterations/10) # @param {type:"integer"} 
 initial_collect_steps = 25
@@ -673,7 +732,7 @@ def create_policy_eval_(policy, num_episodes=5):
       count+=1
       action_step = policy.action(time_step)
       time_step = eval_env.step(action_step.action)
-      print(str(time_step))
+      #print(str(time_step))
       #eval_env._env.envs[-1].show_map()
 
 create_policy_eval_(agent.policy)

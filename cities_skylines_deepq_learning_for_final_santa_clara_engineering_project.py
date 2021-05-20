@@ -56,6 +56,8 @@ from IPython.display import clear_output
 from math import floor
 from random import randrange
 
+import os 
+
 color_map = colors.ListedColormap(['green','gray','white','blue','black','orange','pink'])
 plt.rcParams['figure.figsize'] = [20, 10]
 
@@ -73,9 +75,34 @@ possible_actions = 5
 playable_squares = map_x * map_y
 total_actions = playable_squares * possible_actions 
 
-time_between_actions = 7
-time_after_last = 600
+num_iterations = 100
+def setNI(a):
+  global num_iterations
+  num_iterations = a
+def num_iterations():
+  global num_iterations
+  return num_iterations
 
+initial_collect_steps = 100
+def setICS(a):
+  global initial_collect_steps
+  initial_collect_steps = a
+def initial_collect_steps():
+  global initial_collect_steps
+  return initial_collect_steps
+time_between_actions = 7
+def setTBA(a):
+  global time_between_actions
+  time_between_actions = a
+time_after_last = 30
+def setTAL(a):
+  global time_after_last
+  time_after_last = a
+reset_buffer_time = 10
+def setRBT(a):
+  global reset_buffer_time
+  reset_buffer_time = a
+connected = False
 pmids = [
     "population", 
     "happiness",
@@ -143,7 +170,8 @@ pmd = {}
 
 outqueue = [];
 
-resetting_allowed = False;
+resetting_allowed = True;
+
 
 # Game board:
 # 0 = Empty
@@ -153,9 +181,14 @@ resetting_allowed = False;
 # 4 = Power Plant
 # 5 = Hospital
 # 6 = Wind Power Plant
+def connection():
+  return connected;
+def setConnection(c):
+  global connected
+  connected = c
 
 class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
-  
+
   def __init__(self):
     """ 
     Action space is from 0 to 15679
@@ -188,10 +221,22 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
 
     self.firstreset = True;
 
+    configure()
     lock = threading.Lock()
-    t1 = threading.Thread(target=self.iothread, args=(lock,))
-    t1.start()
-    i = input()
+    if(connection()==False):
+      t1 = threading.Thread(target=self.iothread, args=(lock,))
+      t1.start()
+      ready = False
+      while(ready == False):
+        lock.acquire()
+        #print("not connecting.. connected is " + str(connection()))
+        if(connection() == True):
+          #print("connecting")
+          ready = True
+        lock.release()
+        time.sleep(1)
+
+    
 
   def convertcoords(self, x, y):
     xret = 0;
@@ -233,6 +278,9 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
 
     notexiting = True
     while(notexiting):
+        loc.acquire()
+        setConnection(False)
+        loc.release()
         try:
             pipe = win32pipe.CreateNamedPipe(pipealias1,
                 win32pipe.PIPE_ACCESS_DUPLEX,
@@ -242,22 +290,25 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
                 print("waiting for connection on pipealias1")
                 win32pipe.ConnectNamedPipe(pipe,None)
                 print("connected to pipealias1")
-
-                #print("connection established")
+                loc.acquire()
+                setConnection(True)
+                loc.release()
+                print("connection established, connected is " + str(connection()))
                 while True:
                     inl = win32file.ReadFile(pipe, 4) #read the length of C# message
                     #print(inl)
                     leng = int.from_bytes(inl[1], sys.byteorder) 
                     #print(leng)
                     ins = win32file.ReadFile(pipe,leng) #read the C# message
-                    #print('Read:',ins[1].decode())
+                    #print('Read:',inl,ins[1])
+                    
                     self.updatepms(ins[1].decode())
                     st = "error"
                     loc.acquire()
                     if len(outqueue) == 0:
                         st = "noaction"
                     else:
-                        print(outqueue[0])
+                        #print(outqueue[0])
                         st = outqueue[0]
                         outqueue.remove(outqueue[0])
                     loc.release()
@@ -275,6 +326,9 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
                 win32file.CloseHandle(pipe)
         except Exception as ex:
             print("error with pipalias1: ",ex)
+            loc.acquire()
+            setConnection(False)
+            loc.release()
             try:
               pipe = win32pipe.CreateNamedPipe(pipealias2,
                   win32pipe.PIPE_ACCESS_DUPLEX,
@@ -284,6 +338,9 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
                 print("waiting for connection on pipealias2")
                 win32pipe.ConnectNamedPipe(pipe,None)
                 print("connected to pipealias2")
+                loc.acquire()
+                setConnection(True)
+                loc.release()
                 while True:
                     inl = win32file.ReadFile(pipe, 4) #read the length of C# message
                     #print(inl)
@@ -349,7 +406,8 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
       if self.firstreset == False and resetting_allowed == True:
         outqueue.append("reset")
         print("appending reset, goodbye..")
-        i = input()
+        time.sleep(reset_buffer_time)
+        #i = input()
       else:
         self.firstreset = False;
       return ts.restart(np.array(self._state, dtype=np.int32))
@@ -423,6 +481,7 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
         send = "createbuilding|578|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) + "|0|0"
         outqueue.append(send)
         self.coal += 1
+
     elif action_val == 3: #wind
       if(self.turbines <= self.turbines_max):
         send = "createbuilding|573|" + str(coords[0]) + "," + str(coords[1]) + "," + str(coords[2]) + "|0|0"
@@ -434,7 +493,7 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
     
     time.sleep(time_between_actions)
     reward = self._calculate_reward2()
-    print(str(self._game_cycles) + ", " + str(reward))
+    print(str(self._game_cycles) + ", " + str(reward) + ", " + str(action_val) + str(coords))
     if overwrite:
       reward -= 000000
     #sleep(0.1)
@@ -532,7 +591,56 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
     plt.show()
     sleep(.5)
     clear_output(wait=True)
-  
+
+def configure():
+  try:
+    filename = "skylinesconfig.txt"
+    scriptlocation = os.path.dirname(os.path.realpath(__file__))
+    filepath = os.path.join(scriptlocation, filename)
+    print(filepath)
+    with open(filepath) as f:
+      lis = [line.split() for line in f]
+      for l in lis:
+        print(l[0])
+        print(l[1])
+        if(len(l) < 2): 
+          print()
+        elif (l[0] == "num_iterations="): 
+          try:
+            a = int(l[1])
+            setNI(a)
+          except:
+            print("config error, " + l[1] + "is not an integer")
+        elif (l[0] == "initial_collect_steps="): 
+          try:
+            a = int(l[1])
+            setICS(a)
+          except:
+            print("config error, " + l[1] + "is not an integer")
+        elif (l[0] == "time_between_actions="): 
+          try:
+            a = int(l[1])
+            setTBA(a)
+          except:
+            print("config error, " + l[1] + "is not an integer")
+        elif (l[0] == "time_after_last="): 
+          try:
+            a = int(l[1])
+            setTAL(a)
+          except:
+            print("config error, " + l[1] + "is not an integer")
+        elif (l[0] == "reset_buffer_time="): 
+          try:
+            a = int(l[1])
+            setRBT(a)
+          except:
+            print("config error, " + l[1] + "is not an integer")
+        else:
+          print("it was nothing")
+  except:
+    print("could not locate skylinesconfig.txt")
+  print(reset_buffer_time)
+
 def main():
   plt.figure()
   
@@ -553,18 +661,18 @@ tf_env = tf_py_environment.TFPyEnvironment(env)
 train_env = tf_env
 eval_env = tf_env
 
-num_iterations =  100# @param {type:"integer"}
+#num_iterations =  100   set above    # @param {type:"integer"}
 
 #initial_collect_steps = int(num_iterations/10) # @param {type:"integer"} 
-initial_collect_steps = 25
-collect_steps_per_iteration = 10  # @param {type:"integer"}
+#initial_collect_steps = 100 set above
+collect_steps_per_iteration = 1  # @param {type:"integer"}
 replay_buffer_max_length = 100000  # @param {type:"integer"}
 
 batch_size = 64  # @param {type:"integer"}
 learning_rate = 1e-3  # @param {type:"number"}
-log_interval = 5  # @param {type:"integer"}
+log_interval = 1  # @param {type:"integer"}
 
-num_eval_episodes = 30  # @param {type:"integer"}
+num_eval_episodes = 10  # @param {type:"integer"}
 eval_interval =  int(num_iterations/10) # @param {type:"integer"}
 
 # Consider layers that go big -> small -> big, e.g.
@@ -573,9 +681,13 @@ fc_layer_params = (1024, 256, 64, 256, 1024)
 # Maybe change env -> tf_env
 action_tensor_spec = tensor_spec.from_spec(train_env.action_spec())
 num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
-
+configure()
+print(reset_buffer_time)
 # Define a helper function to create Dense layers configured with the right
 # activation and kernel initializer.
+
+
+
 def dense_layer(num_units):
   return tf.keras.layers.Dense(
       num_units,
@@ -615,15 +727,15 @@ agent = dqn_agent.DqnAgent(
     train_step_counter=train_step_counter)
 
 agent.initialize()
-
 eval_policy = agent.policy
 collect_policy = agent.collect_policy
 random_policy = random_tf_policy.RandomTFPolicy(train_env.time_step_spec(),
                                                 train_env.action_spec())
-#example_environment = tf_py_environment.TFPyEnvironment(CitiesSkylinesEnvironment)
-#time_step = example_environment.reset()
-#time_step = tf_env.reset()
-#random_policy.action(time_step)
+
+example_environment = tf_py_environment.TFPyEnvironment(CitiesSkylinesEnvironment)
+time_step = example_environment.reset()
+time_step = tf_env.reset()
+random_policy.action(time_step)
 
 def compute_avg_return(environment, policy, num_episodes=10):
 
@@ -669,7 +781,7 @@ def collect_data(env, policy, buffer, steps):
   for _ in range(steps):
     collect_step(env, policy, buffer)
 
-collect_data(train_env, random_policy, replay_buffer, initial_collect_steps)
+collect_data(train_env, random_policy, replay_buffer, initial_collect_steps())
 
 dataset = replay_buffer.as_dataset(
     num_parallel_calls=3, 
@@ -693,6 +805,7 @@ agent.train_step_counter.assign(0)
 # Evaluate the agent's policy once before training.
 avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
 returns = [avg_return]
+#returns = []
 
 for x in range(num_iterations):
 
@@ -733,6 +846,6 @@ def create_policy_eval_(policy, num_episodes=5):
       action_step = policy.action(time_step)
       time_step = eval_env.step(action_step.action)
       #print(str(time_step))
-      #eval_env._env.envs[-1].show_map()
+      eval_env._env.envs[-1].show_map()
 
 create_policy_eval_(agent.policy)

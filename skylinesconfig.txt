@@ -1,0 +1,5 @@
+num_iterations= 100 //actions the agent takes per game 
+initial_collect_steps= 100 //actions the agent takes per game during initial training
+time_between_actions= 7 //time in seconds between actions
+time_after_last= 30 //time in seconds before reseting agent after last action
+reset_buffer_time= 11 //time after re-loading the game before starting next game (allows game to load, increase for slower machines)

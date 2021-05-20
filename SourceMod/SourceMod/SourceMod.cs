@@ -334,6 +334,7 @@ namespace Tutorial
                 if (i == 0)
                 {
                     GetMoney(1000000000);
+                    Singleton<SimulationManager>.instance.SelectedSimulationSpeed = 3;
                     //testfunction();
                 }
                 i++;
@@ -1003,23 +1004,7 @@ namespace Tutorial
             catch(System.TimeoutException ex)
             {
                 client = new NamedPipeClientStream("NP2");
-                try
-                {
-                    client.Connect(10000);
-                }
-                catch(System.TimeoutException ex2)
-                {
-                    client = new NamedPipeClientStream("NP1");
-                    try
-                    {
-                        client.Connect(10000);
-                    }
-                    catch (System.TimeoutException ex3)
-                    {
-                        client = new NamedPipeClientStream("NP2");
-                        client.Connect();
-                    }
-                }
+                client.Connect();
             }
             performance_measures pm = new performance_measures();
             action_parser ap = new action_parser();
@@ -1050,11 +1035,11 @@ namespace Tutorial
                     //String op = "read: " + st;
                     //DebugOutputPanel.AddMessage(ColossalFramework.Plugins.PluginManager.MessageType.Message, op);
                     ap.parse_actions(st);
-                    if (st.Contains("reset"))
+                    if (st != null && st.Contains("reset"))
                     {
-                        client.Close();
-                        client.Dispose();
-                        notexiting = false;
+                        //client.Close();
+                        //client.Dispose();
+                        //notexiting = false;
                         reset();
                     }
 

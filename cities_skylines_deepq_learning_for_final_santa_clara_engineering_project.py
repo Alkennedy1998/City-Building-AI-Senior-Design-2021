@@ -301,7 +301,7 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
                 win32pipe.PIPE_TYPE_BYTE|win32pipe.PIPE_READMODE_BYTE|win32pipe.PIPE_WAIT, 
                 1, bufsize, bufsize, 1, None) 
             try:
-                print("waiting for connection on pipealias1")
+                print("waiting for connection on pipealias1 (please start Cities: Skylines)")
                 win32pipe.ConnectNamedPipe(pipe,None)
                 print("connected to pipealias1")
                 loc.acquire()
@@ -344,7 +344,7 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
                   win32pipe.PIPE_TYPE_BYTE|win32pipe.PIPE_READMODE_BYTE|win32pipe.PIPE_WAIT, 
                   1, bufsize, bufsize, 1, None) 
               try:
-                print("waiting for connection on pipealias2")
+                print("waiting for connection on pipealias2 (please start Cities: Skylines)")
                 win32pipe.ConnectNamedPipe(pipe,None)
                 print("connected to pipealias2")
                 loc.acquire()
@@ -405,11 +405,13 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
       self.turbines_max = 3;
       self.coal_max = 3;
       finalscore = self._calculate_reward2()
-      print("final score before reset: " + str(finalscore))
+      
       pms = [0] * len(pmids)
       if self.firstreset == False and resetting_allowed == True:
+        print("final score before reset: " + str(finalscore))
         outqueue.append("reset")
-        print("appending reset, goodbye..")
+        if(log_all_steps == True or log_all_actions == True):
+          print("appending reset..")
         time.sleep(reset_buffer_time)
       else:
         self.firstreset = False;
@@ -420,43 +422,6 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
 
     self._game_cycles += 1
     action_val = action // playable_squares
-
-    if action_val == 0:
-      # Residential zone
-      self._population += 400
-      self._pollution += 0
-      self._residential_count += 100
-      #Residences also provide income in form of taxes
-      #About $7 per indivudal zone square, roughly 
-      self._income += 700
-
-    elif action_val == 1:
-      # Commercial Zone
-      self._income += 0.1*self._population
-      self._pollution += 5
-      self._commercial_count += 1  
-    elif action_val == 2:
-      # Coal Power Plant
-      # 578
-      self._power += 40
-      self._income -= 560
-      self._pollution += 50
-      self._coal_plant_count += 1
-
-    elif action_val == 3:
-      # Wind Power Plant
-      # 573
-      self._power += 30
-      self._income -= 300
-      self._wind_plant_count += 1
-
-    elif action_val == 4:
-      # Hospital
-      # 1
-      self._hospital_count += 1
-
-    else:
-      raise ValueError('`action` should be less than the max action value')
 
     flat_coord = action % playable_squares 
     x,y = self.map_action_to_coordinate(flat_coord)
@@ -600,7 +565,7 @@ def configure():
   logfilename = os.path.join('logs',logfilename)
   global logfile
   logfile = os.path.join(scriptlocation, logfilename)
-  print(logfile)
+  print("log file created at " + logfile)
   with open(logfile, 'w') as wf:
     title = "Runtime logs for iteration started at " + datetime.now().strftime('%H:%M:%S, %Y-%m-%d.\n')
     wf.write(title)
@@ -608,12 +573,12 @@ def configure():
   try:
     filename = "skylinesconfig.txt"
     filepath = os.path.join(scriptlocation, filename)
-    print(filepath)
+    print("config file found at " + filepath)
     with open(filepath) as f:
       lis = [line.split() for line in f]
       for l in lis:
-        print(l[0])
-        print(l[1])
+        #print(l[0])
+        #print(l[1])
         if(len(l) < 2): 
           print()
         elif (l[0] == "num_iterations="): 
@@ -646,11 +611,23 @@ def configure():
             setRBT(a)
           except:
             print("config error, " + l[1] + "is not an integer")
-        else:
-          print("it was nothing")
+        elif (l[0] == "log_all_steps="):
+          try:
+            a = bool(l[1])
+            setLAS(a)
+          except:
+            print("config error, " + l[1] + "is not a bool")
+        elif (l[0] == "log_all_actions="):
+          try:
+            a = bool(l[1])
+            setLAA(a)
+          except:
+            print("config error, " + l[1] + "is not a bool")
+                        
+        #else:
+          #print("it was nothing")
   except:
     print("could not locate skylinesconfig.txt")
-  print(reset_buffer_time)
 
 def main():
   plt.figure()
@@ -695,7 +672,6 @@ fc_layer_params = (1024, 256, 64, 256, 1024)
 action_tensor_spec = tensor_spec.from_spec(train_env.action_spec())
 num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 #configure()
-print(reset_buffer_time)
 # Define a helper function to create Dense layers configured with the right
 # activation and kernel initializer.
 
@@ -724,12 +700,12 @@ q_net = sequential.Sequential([flatten_layer] + dense_layers + [q_values_layer])
 optimizer = tf.keras.optimizers.Adadelta(learning_rate=learning_rate)
 
 train_step_counter = tf.Variable(0)
-print(q_net)
+#print(q_net)
 
-print(tf_env.time_step_spec())
-print(tf_env.action_spec())
-print(q_net)
-print(q_net.losses)
+#print(tf_env.time_step_spec())
+#print(tf_env.action_spec())
+#print(q_net)
+#print(q_net.losses)
 
 agent = dqn_agent.DqnAgent(
     tf_env.time_step_spec(),
@@ -820,7 +796,7 @@ dataset = replay_buffer.as_dataset(
 
 dataset
 iterator = iter(dataset)
-print(iterator)
+#print(iterator)
 
 # Commented out IPython magic to ensure Python compatibility.
 
@@ -851,6 +827,11 @@ for x in range(num_iterations):
 
   if step % log_interval == 0:
     print('step = {0}: loss = {1}'.format(step, train_loss))
+    
+    with open(logfile, 'a') as wf:
+      actionString = '\tstep = {0}: loss = {1}'.format(step, train_loss)
+      wf.write(actionString)
+      wf.close()
 
 
 

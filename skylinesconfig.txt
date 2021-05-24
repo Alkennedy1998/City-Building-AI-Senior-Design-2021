@@ -3,3 +3,6 @@ initial_collect_steps= 100 //actions the agent takes per game during initial tra
 time_between_actions= 7 //time in seconds between actions
 time_after_last= 30 //time in seconds before reseting agent after last action
 reset_buffer_time= 11 //time after re-loading the game before starting next game (allows game to load, increase for slower machines)
+log_all_steps= True //if true, record every step to a text file
+log_all_actions= True //if true, record every action to a text file
+//keep a space before and after each value in this file

@@ -52,6 +52,7 @@ from tf_agents.environments import utils
 
 from matplotlib import cm, colors
 from time import sleep
+from datetime import datetime
 from IPython.display import clear_output
 from math import floor
 from random import randrange
@@ -61,48 +62,66 @@ import os
 color_map = colors.ListedColormap(['green','gray','white','blue','black','orange','pink'])
 plt.rcParams['figure.figsize'] = [20, 10]
 
-
-#total_x = 28
-#total_y = 30  
-
 map_x = 24
 map_y = 20
 
-#map_x = 5
-#map_y = 6
 possible_actions = 5
-#road_spaces = 136 
+
 playable_squares = map_x * map_y
 total_actions = playable_squares * possible_actions 
+
+log_all_actions = True
+def setLAA(a):
+  global log_all_actions
+  log_all_actions = a
+
+log_all_steps = True
+def setLAS(a):
+  global log_all_steps
+  log_all_steps = a
 
 num_iterations = 100
 def setNI(a):
   global num_iterations
   num_iterations = a
+
 def num_iterations():
   global num_iterations
   return num_iterations
 
 initial_collect_steps = 100
+
 def setICS(a):
   global initial_collect_steps
   initial_collect_steps = a
+
 def initial_collect_steps():
   global initial_collect_steps
   return initial_collect_steps
+
 time_between_actions = 7
+
 def setTBA(a):
   global time_between_actions
   time_between_actions = a
+
 time_after_last = 30
+
 def setTAL(a):
   global time_after_last
   time_after_last = a
+
 reset_buffer_time = 10
+
 def setRBT(a):
   global reset_buffer_time
   reset_buffer_time = a
+
+logfile = "undefined.txt"
+
 connected = False
+
+#order of performance measures
 pmids = [
     "population", 
     "happiness",
@@ -134,6 +153,7 @@ pmids = [
     "actual_workplace_demand"
 ]
 
+#weights for each performance measure 
 w = [
   1.0,
   3.0,
@@ -168,6 +188,7 @@ w = [
 pms = [0] * len(pmids)
 pmd = {}
 
+#action queue to be sent to C# script
 outqueue = [];
 
 resetting_allowed = True;
@@ -221,7 +242,6 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
 
     self.firstreset = True;
 
-    configure()
     lock = threading.Lock()
     if(connection()==False):
       t1 = threading.Thread(target=self.iothread, args=(lock,))
@@ -229,9 +249,7 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
       ready = False
       while(ready == False):
         lock.acquire()
-        #print("not connecting.. connected is " + str(connection()))
         if(connection() == True):
-          #print("connecting")
           ready = True
         lock.release()
         time.sleep(1)
@@ -261,13 +279,9 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
     return coords
   def updatepms(self, st):
     l = st.split(", ")
-    #print(st)
-    #print(len(pms))
-    #print(len(l))
     for i in range (len(pms)):
         pms[i] = l[i]
         pmd[pmids[i]] = pms[i]
-    #print(pmd)
 
   def iothread(self, loc):
     pipealias1 = r'\\.\pipe\NP1'
@@ -296,11 +310,8 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
                 print("connection established, connected is " + str(connection()))
                 while True:
                     inl = win32file.ReadFile(pipe, 4) #read the length of C# message
-                    #print(inl)
                     leng = int.from_bytes(inl[1], sys.byteorder) 
-                    #print(leng)
                     ins = win32file.ReadFile(pipe,leng) #read the C# message
-                    #print('Read:',inl,ins[1])
                     
                     self.updatepms(ins[1].decode())
                     st = "error"
@@ -308,7 +319,6 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
                     if len(outqueue) == 0:
                         st = "noaction"
                     else:
-                        #print(outqueue[0])
                         st = outqueue[0]
                         outqueue.remove(outqueue[0])
                     loc.release()
@@ -316,7 +326,6 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
                     r = (st == "reset")
                     send = struct.pack('I', len(st)) + st.encode()
                     win32file.WriteFile(pipe, send)
-                    #print('wrote: ', send)
                     inw = win32file.ReadFile(pipe, 4) #the pipe will read its own messages
                     inw2 = win32file.ReadFile(pipe, len(st)) # the pipe will read its own messages
                     #if r:
@@ -343,11 +352,8 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
                 loc.release()
                 while True:
                     inl = win32file.ReadFile(pipe, 4) #read the length of C# message
-                    #print(inl)
                     leng = int.from_bytes(inl[1], sys.byteorder) 
-                    #print(leng)
                     ins = win32file.ReadFile(pipe,leng) #read the C# message
-                    #print('Read:',ins[1].decode())
                     self.updatepms(ins[1].decode())
                     st = "error"
                     loc.acquire()
@@ -358,9 +364,7 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
                         outqueue.remove(outqueue[0])
                     loc.release()
                     send = struct.pack('I', len(st)) + st.encode()
-                    #print(str(send))
                     win32file.WriteFile(pipe, send)
-                    #print('wrote: ', send)
                     inw = win32file.ReadFile(pipe, 4) #the pipe will read its own messages
                     inw2 = win32file.ReadFile(pipe, len(st)) # the pipe will read its own messages
                     time.sleep(1)
@@ -407,7 +411,6 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
         outqueue.append("reset")
         print("appending reset, goodbye..")
         time.sleep(reset_buffer_time)
-        #i = input()
       else:
         self.firstreset = False;
       return ts.restart(np.array(self._state, dtype=np.int32))
@@ -432,14 +435,9 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
       self._income += 0.1*self._population
       self._pollution += 5
       self._commercial_count += 1  
-      #print("Commercial Zone Built at " + str(x) + "," + str(y))
     elif action_val == 2:
       # Coal Power Plant
-      #Placing one square at a time but in game takes up 30 squares, so should divide by 30... will do later once get loss function wokring 
       # 578
-      #print(send)
-      #time.sleep(5)
-      # Coal Power Plant
       self._power += 40
       self._income -= 560
       self._pollution += 50
@@ -455,8 +453,6 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
     elif action_val == 4:
       # Hospital
       # 1
-      # self._population += floor(self._population * 0.15)
-      # self._income -= 2000
       self._hospital_count += 1
 
     else:
@@ -494,6 +490,12 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
     time.sleep(time_between_actions)
     reward = self._calculate_reward2()
     print(str(self._game_cycles) + ", " + str(reward) + ", " + str(action_val) + str(coords))
+    if log_all_actions == True:
+      global logfile
+      with open(logfile, 'a') as wf:
+        actionString = "\t\t"+str(self._game_cycles) + ", " + str(reward) + ", " + str(action_val) + str(coords) + "\n"
+        wf.write(actionString)
+        wf.close()
     if overwrite:
       reward -= 000000
     #sleep(0.1)
@@ -593,9 +595,18 @@ class CitiesSkylinesEnvironment(py_environment.PyEnvironment):
     clear_output(wait=True)
 
 def configure():
+  scriptlocation = os.path.dirname(os.path.realpath(__file__))
+  logfilename = datetime.now().strftime('%Y-%m-%d_%H%M%S.txt')
+  logfilename = os.path.join('logs',logfilename)
+  global logfile
+  logfile = os.path.join(scriptlocation, logfilename)
+  print(logfile)
+  with open(logfile, 'w') as wf:
+    title = "Runtime logs for iteration started at " + datetime.now().strftime('%H:%M:%S, %Y-%m-%d.\n')
+    wf.write(title)
+    wf.close()
   try:
     filename = "skylinesconfig.txt"
-    scriptlocation = os.path.dirname(os.path.realpath(__file__))
     filepath = os.path.join(scriptlocation, filename)
     print(filepath)
     with open(filepath) as f:
@@ -656,6 +667,8 @@ def main():
 
 # main()
 
+configure()
+
 env = CitiesSkylinesEnvironment()
 tf_env = tf_py_environment.TFPyEnvironment(env)
 train_env = tf_env
@@ -681,7 +694,7 @@ fc_layer_params = (1024, 256, 64, 256, 1024)
 # Maybe change env -> tf_env
 action_tensor_spec = tensor_spec.from_spec(train_env.action_spec())
 num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
-configure()
+#configure()
 print(reset_buffer_time)
 # Define a helper function to create Dense layers configured with the right
 # activation and kernel initializer.
@@ -740,8 +753,18 @@ random_policy.action(time_step)
 def compute_avg_return(environment, policy, num_episodes=10):
 
   total_return = 0.0
-  for _ in range(num_episodes):
-
+  global logfile
+  if log_all_steps == True:
+      with open(logfile, 'a') as wf:
+        actionString = "Avg return step\n"
+        wf.write(actionString)
+        wf.close()
+  for s in range(num_episodes):
+    if log_all_steps == True:
+      with open(logfile, 'a') as wf:
+        actionString = "\tStep " + str(s) + "\n"
+        wf.write(actionString)
+        wf.close()
     time_step = environment.reset()
     episode_return = 0.0
 
@@ -778,7 +801,13 @@ def collect_step(environment, policy, buffer):
   buffer.add_batch(traj)
 
 def collect_data(env, policy, buffer, steps):
-  for _ in range(steps):
+  for s in range(steps):
+    if log_all_steps == True:
+      global logfile
+      with open(logfile, 'a') as wf:
+        actionString = "\tStep " + str(s) + "\n"
+        wf.write(actionString)
+        wf.close()
     collect_step(env, policy, buffer)
 
 collect_data(train_env, random_policy, replay_buffer, initial_collect_steps())
@@ -822,6 +851,7 @@ for x in range(num_iterations):
 
   if step % log_interval == 0:
     print('step = {0}: loss = {1}'.format(step, train_loss))
+
 
 
   if step % eval_interval == 0:

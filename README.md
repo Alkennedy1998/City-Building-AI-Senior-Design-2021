@@ -184,17 +184,17 @@ The higher the num\_episodes parameter the more iterations the program will run
 
 We decided to use a deep Q-network to train with. The DQN agent is defined as follows:
 
-agent = dqn\_agent.DqnAgent(
+`agent = dqn\_agent.DqnAgent(
 
-`    `tf\_env.time\_step\_spec(),
+    tf\_env.time\_step\_spec(),
 
-`    `tf\_env.action\_spec(),
+    tf\_env.action\_spec(),
 
-`    `q\_network=q\_net,
+    q\_network=q\_net,
 
-`    `optimizer=optimizer,
+    optimizer=optimizer,
 
-`    `td\_errors\_loss\_fn=common.element\_wise\_squared\_loss,
+    td\_errors\_loss\_fn=common.element\_wise\_squared\_loss,
 
-`    `train\_step\_counter=train\_step\_counter)
-
+    train\_step\_counter=train\_step\_counter)
+`

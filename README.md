@@ -45,11 +45,11 @@ Select build events
 
 Copy and paste the following script:
 
-mkdir "%LOCALAPPDATA%\Colossal Order\Cities\_Skylines\Addons\Mods\$(SolutionName)"
+    mkdir "%LOCALAPPDATA%\Colossal Order\Cities\_Skylines\Addons\Mods\$(SolutionName)"
 
-del "%LOCALAPPDATA%\Colossal Order\Cities\_Skylines\Addons\Mods\$(SolutionName)\$(TargetFileName)"
+    del "%LOCALAPPDATA%\Colossal Order\Cities\_Skylines\Addons\Mods\$(SolutionName)\$(TargetFileName)"
 
-xcopy /y "$(TargetPath)" "%LOCALAPPDATA%\Colossal Order\Cities\_Skylines\Addons\Mods\$(SolutionName)"
+    xcopy /y "$(TargetPath)" "%LOCALAPPDATA%\Colossal Order\Cities\_Skylines\Addons\Mods\$(SolutionName)"
 
 With Visual Studio now set up with the dependencies and post build script, the C# code for the mod can now be compiled directly into the game files by clicking “rebuild solution” in Visual Studio under the “build” tab.
 # **Preparing the Cities: Skylines Game Environment**
@@ -69,24 +69,24 @@ If there is no such directory, launch the Cities: Skylines game first
 ## Install Python Dependencies
 After installing the latest version of Python 3, use pip to install the following modules:
 
-pip install imageio
+    pip install imageio
 
-pip install tensorflow
+    pip install tensorflow
 
-pip install tf\_agents
+    pip install tf\_agents
 # **Launching the Mod and the Agent**
 ## Launching the Agent
 First, the python script must be run before the Cities: Skylines game. 
 
 Navigate to the directory containing the file 
 
-“cities\_skylines\_deepq\_learning\_for\_final\_santa\_clara\_engineering\_project.py”
+    “cities\_skylines\_deepq\_learning\_for\_final\_santa\_clara\_engineering\_project.py”
 
 Open a windows console the same directory
 
 Enter the following command:
 
-`	`python “cities\_skylines\_deepq\_learning\_for\_final\_santa\_clara\_engineering\_project.py”
+    python “cities\_skylines\_deepq\_learning\_for\_final\_santa\_clara\_engineering\_project.py”
 
 The agent should now be launched and awaiting the Cities: Skylines side
 ## Launching the Mod

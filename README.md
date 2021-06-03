@@ -169,16 +169,16 @@ After an action is taken by the agent it will be given a reward score depending 
 ### Action Selection 
 Using the scores discussed above, the agent will choose the action with the highest score. This action will then be encoded and sent over a system pipe to the C# script where the action will be decoded and the corresponding action will be taken in the Cities: Skylines game. For example, one possible selected action could be to build a hospital in square (2,7). This information would be encoded as an integer such as “96024” and sent over as discussed. 
 
-class CitiesSkylinesEnvironment(py\_environment.PyEnvironment):
+    class CitiesSkylinesEnvironment(py\_environment.PyEnvironment):
 
 The environment parameter is the class defined to interact with the Cities:Skylines C# API
 
-def compute\_avg\_return(environment, policy, num\_episodes=10):
+    def compute\_avg\_return(environment, policy, num\_episodes=10):
 
 
 The policy parameter is the predefined random\_tf\_policy that selects actions in a random way.
 
-random\_tf\_policy.RandomTFPolicy(train\_env.time\_step\_spec(), train\_env.action\_spec())
+    random\_tf\_policy.RandomTFPolicy(train\_env.time\_step\_spec(), train\_env.action\_spec())
 
 The higher the num\_episodes parameter the more iterations the program will run
 

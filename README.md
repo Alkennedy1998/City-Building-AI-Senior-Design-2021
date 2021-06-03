@@ -2,7 +2,6 @@
 # Urban Planning Optimization via “Cities: Skylines” 
 Andrew Wang - Jack Cunningham- Carter Duncan - Alexander Kennedy - Advisor Ying Liu
 
-Code Documentation
 # **Compiling the Cities Skylines Mod**
 While the Cities: Skylines game has its own compiler for C# code, we used the Visual Studio method to manually compile and move the resulting file into the appropriate file location. 
 

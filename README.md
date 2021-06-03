@@ -1,15 +1,6 @@
 ﻿
-Andrew Wang
-
-Jack Cunningham
-
-Carter Duncan
-
-Alexander Kennedy
-
-Advisor Ying Liu
-
-Urban Planning Optimization via “Cities: Skylines” 
+# Urban Planning Optimization via “Cities: Skylines” 
+Andrew Wang - Jack Cunningham- Carter Duncan - Alexander Kennedy - Advisor Ying Liu
 
 Code Documentation
 # **Compiling the Cities Skylines Mod**

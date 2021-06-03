@@ -2,6 +2,9 @@
 # Urban Planning Optimization via “Cities: Skylines” 
 Andrew Wang - Jack Cunningham- Carter Duncan - Alexander Kennedy - Advisor Ying Liu
 
+Inspired by projects such as OpenAI Five we created our own AI agent to design optimized city layouts in the game Cities: Skylines. By doing so, we hope to illustrate the viability of using artificial intelligence as a tool in urban planning for real cities. 
+	To create the artificial intelligence agent, we took advantage of the fact that we were using a video game as an environment for the agent. We were able to customize and control the environment that the agent was operating in, and allow the agent to reliably read data on the game state and perform actions to change the game state. With these prerequisites, the agent was able to begin the process of reinforcement learning to progressively find more optimal urban design solutions for the game environment. 
+
 # **Compiling the Cities Skylines Mod**
 While the Cities: Skylines game has its own compiler for C# code, we used the Visual Studio method to manually compile and move the resulting file into the appropriate file location. 
 

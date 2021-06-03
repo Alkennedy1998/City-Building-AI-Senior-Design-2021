@@ -29,13 +29,13 @@ Use the browse button and navigate to the folder Steam\steamapps\common\Cities\_
 
 Select the following files:
 
-`	`Assembly-CSharp.dll
+    Assembly-CSharp.dll
 
-`	`ColossalManaged.dll
+    ColossalManaged.dll
 
-`	`ICities.dll
+    ICities.dll
 
-`	`UnityEngine.dll
+    UnityEngine.dll
 
 Add the files
 ## Set up the post build script
